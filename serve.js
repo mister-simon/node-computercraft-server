@@ -19,7 +19,7 @@ app.get('/listing/lua', function(req, res){
 	res.send(stringyFiles);
 });
 
-app.listen(8888, function () { console.log('WE GO NOW'); });
+app.listen(process.env.PORT || 8888, function () { console.log('WE GO NOW'); });
 
 
 function checkFolder(path, output){
