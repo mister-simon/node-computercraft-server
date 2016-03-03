@@ -1,0 +1,30 @@
+{
+  "name": "node-computercraft-server",
+  "version": "1.0.0",
+  "description": "computercraft file server for daysssssss",
+  "main": "serve.js",
+  "dependencies": {
+    "express": "^4.13.4",
+    "serve-index": "^1.7.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mister-simon/node-computercraft-server.git"
+  },
+  "keywords": [
+    "computercraft",
+    "minecraft",
+    "turtles",
+    "toby"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mister-simon/node-computercraft-server/issues"
+  },
+  "homepage": "https://github.com/mister-simon/node-computercraft-server#readme"
+}
