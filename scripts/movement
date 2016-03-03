@@ -1,0 +1,85 @@
+os.loadAPI("actions")
+
+-- Static
+local maxIterations = 50
+local maxIterationsError = "Error: Iterated too many times, ensure there is fuel or block / mob in the way can be destroyed"
+
+
+
+-- Static Class Methods
+-- Params: Handler Class (Context)
+local function run(this)
+	local success = this.action()
+	
+	if success == false then
+		if this.detect == true then
+			success = handleBlock()
+		else
+			success = handleMob()
+		end
+	end
+	
+	return success
+end
+
+-- Deal with somthing obstructing the path
+-- Params: Handler Class (Context), Function
+local function unblockPath(this, unblockingAction)
+	while this.action == false do
+		unblockingAction()
+		
+		if checkIterations then
+			print(maxIterationsError)
+			return false
+		end
+	end
+	
+	return true
+end
+
+
+
+-- Base Class
+-- Params: Function, Function, Function, Function
+local function Handler(action, detect, attack, dig)
+	-- Private properties
+	local this = {}
+	
+	-- Public properties
+	this.action = action
+	this.detect = detect
+	this.attack = attack
+	this.dig = dig
+	
+	-- Methods
+	function this.run() 
+		return run(this)
+	end
+	
+	function this.handleMob()
+		return unblockPath(this, this.attack)
+	end
+	
+	function this.handleBlock()
+		return unblockPath(this, this.dig)
+	end
+	
+	return this;
+ 
+end
+
+-- Globals
+-- Params: Int
+function checkIterations(currentIterations)
+	return currentIterations == maxIterations
+end
+
+-- Params: Function
+function createHandlerFromMovement(movementFunc)
+	local actions = actions.getActionsListFromOperation(movementFunc)
+	return Handler(actions.movement, actions.detect, actions.attack, actions.dig)
+end
+
+function new(...)
+	return Handler(...)
+end
