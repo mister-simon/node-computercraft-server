@@ -1,1 +1,29 @@
-textutils.slowPrint("hello")
+local base_url = "https://cc-scripts.herokuapp.com/"
+local listing_endpoint = "listing/lua"
+
+function getUrlContents(endpoint)
+	local http_handle = http.get(base_url .. endpoint)
+	return http_handle.readAll()
+end
+
+function main()
+	local listing = textutils.unserialise(getUrlContents(listing_endpoint))
+
+	local data = ""
+	local file_handle = nil
+
+	for i=1,#listing do
+		print("Getting file: "..listing[i])
+		data = getUrlContents(listing[i])
+
+		print("Writing file...")
+		
+		file_handle = fs.open(listing[i], "w");
+		file_handle.write(data)
+		file_handle.close()
+
+		print("")
+	end
+end
+
+main()
