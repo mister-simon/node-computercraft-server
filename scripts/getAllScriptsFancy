@@ -1,8 +1,8 @@
-----------------------------------------------------
+---------------------------------------------------
 -- Fancy version of the getAllScripts script
 --   Fancified for improved showiness when
 --   used in a startup / shell.run context
-----------------------------------------------------
+---------------------------------------------------
 
 local base_url = "https://cc-scripts.herokuapp.com/"
 local listing_endpoint = "listing/lua"
@@ -12,6 +12,14 @@ local term_w, term_h = term.getSize()
 
 function getUrlContents(endpoint)
 	local http_handle = http.get(base_url .. endpoint)
+	local status = http_handle.getResponseCode()
+
+	if status ~= "200" then
+		print("Error getting: " .. endpoint)
+		print("Status code: " .. status)
+		os.exit()
+	end
+
 	return http_handle.readAll()
 end
 

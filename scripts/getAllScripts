@@ -3,6 +3,14 @@ local listing_endpoint = "listing/lua"
 
 function getUrlContents(endpoint)
 	local http_handle = http.get(base_url .. endpoint)
+	local status = http_handle.getResponseCode()
+
+	if status ~= "200" then
+		print("Error getting: " .. endpoint)
+		print("Status code: " .. status)
+		os.exit()
+	end
+
 	return http_handle.readAll()
 end
 
