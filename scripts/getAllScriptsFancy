@@ -17,7 +17,7 @@ function getUrlContents(endpoint)
 	if status ~= "200" then
 		print("Error getting: " .. endpoint)
 		print("Status code: " .. status)
-		os.exit()
+		shell.exit()
 	end
 
 	return http_handle.readAll()
