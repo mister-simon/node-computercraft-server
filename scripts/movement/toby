@@ -1,0 +1,99 @@
+os.loadAPI("movement")
+os.loadAPI("lib")
+
+
+-- Coordinates and Direction is relative to the turtle's start position
+local directions = {1 = "North",  2 = "East", 3 = "South", 4 = "West"}
+local axisFromDirectionDict = {1 = "z", 2 = "x", 3 = "z", 4 = "x"}
+local directionsLength = #directions
+
+local startCoords = vector.new(0, 0, 0)
+local currentCoords = vector.new(0, 0, 0)
+local startDirection = 1
+local currentDirection = 1
+local currentPathIndex = 1
+local path = {vector = vector.new(0, 0, 0), direction = 1}
+
+
+
+-- Private functions 
+-- Params: Vector, String, Int
+local function updateVector(vector, axis, amount) 
+	currentCoords[axis] = currentCoords[axis] + amount
+end
+
+
+-- Params: String (x, y, z)
+local function updatePath(axis, amount, forceNew)
+	local current = path[currentPathIndex]
+	local currentVector = current.vector
+	amount = lib.ifNil(amount, 1)
+
+	if currentAxis == axis and forceNew ~= true then
+		updateVector(current.vector, axis, amount)
+	else
+		currentAxis = axis
+		currentPathIndex = currentPathIndex + 1
+		path[currentPathIndex] = {vector = vector.new(currentVector.x, currentVector.y, currentVector.z), direction = currentDirection}
+	end
+end
+
+-- Params: Int
+local function updateStoredDirection(turnAmount)
+		local newDirection = (currentDirection + turnAmount) % directionsLength
+
+		if newDirection == 0 then
+			newDirection = directionsLength
+		end
+		
+		currentDirection = newDirection
+		return newDirection
+end
+
+-- Params: Int, Int (1, -1)
+local function moveOnVerticalAxis(distance, verticalDirection)
+	local distanceCovered = repeatMovement(distance, upAction)
+	updatePath("y", distanceCovered)
+	updateY(distanceCovered * verticalDirection)
+end
+
+
+
+-- Exposed API / Functions
+-- Params: Int
+function forward(distance)
+	-- TODO: GO
+	-- updatePath(axisFromDirectionDict[updateStoredDirection(direction)], distanceCovered)
+	
+	-- if currentAxis == "z" then
+	-- 	updateZ(distanceCovered)
+	-- else
+	-- 	updateX(distanceCovered)
+	-- end
+	
+end
+
+-- Params: Int
+function up(distance)
+	-- TODO: GO
+	-- 1
+end
+
+-- Params: Int
+function down(distance)
+	-- TODO: GO
+	-- -1
+end
+
+-- Params: Int, Bool
+function turnLeft(turnIterations, dumbTurn)
+	-- TODO: GO
+	-- -1
+	-- updateStoredDirection((turnIterations * direction) % directionsLength)
+end
+
+-- Params: Int, Bool
+function turnRight(turnIterations, dumbTurn)
+	-- TODO: GO
+	-- 1
+end
