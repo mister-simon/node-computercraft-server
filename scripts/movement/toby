@@ -1,5 +1,5 @@
-os.loadAPI("movement")
 os.loadAPI("lib")
+os.loadAPI("go")
 
 
 -- Coordinates and Direction is relative to the turtle's start position
@@ -37,6 +37,7 @@ local function updatePathVector(axis, amount, forceNew)
 	end
 end
 
+-- Params: Vector, Int
 local function createNewPoint(newVector, newDirection)
 	local lastVector = path[currentPathIndex].vector
 	newDirection = lib.ifNil(newDirection, currentDirection)
@@ -68,45 +69,49 @@ local function moveOnVerticalAxis(distance, verticalDirection)
 end
 
 
+-- > On Move Callbacks
+local function updateHorizontalAxis()
+	updatePathVector(currentAxis, 1)
+end
+
+local function updateVerticalAxis()
+	currentAxis = 'y'
+	updatePathVector(currentAxis, 1)
+end
+
+local function updateVerticalAxisNegative()
+	updatePathVector(currentAxis, -1)
+end
+
+
 
 -- Exposed API / Functions
 -- > Movement
 -- Params: Int
 function forward(distance)
-	-- TODO: GO
-	-- updatePath(axisFromDirectionDict[updateStoredDirection(direction)], distanceCovered)
-	
-	-- if currentAxis == "z" then
-	-- 	updateZ(distanceCovered)
-	-- else
-	-- 	updateX(distanceCovered)
-	-- end
-	
+	go.forward(distance, updateHorizontalAxis)
 end
 
 -- Params: Int
 function up(distance)
-	-- TODO: GO
-	-- 1
+	go.up(distance, updateVerticalAxis)
 end
 
 -- Params: Int
 function down(distance)
-	-- TODO: GO
-	-- -1
+	go.up(distance, updateVerticalAxisNegative)
 end
 
 -- Params: Int, Bool
 function turnLeft(turnIterations, dumbTurn)
-	-- TODO: GO
-	-- -1
-	-- updateStoredDirection((turnIterations * direction) % directionsLength)
+	go.turnLeft(turnIterations, dumbTurn)
+	updateStoredDirection(turnIterations)
 end
 
 -- Params: Int, Bool
 function turnRight(turnIterations, dumbTurn)
-	-- TODO: GO
-	-- 1
+	go.turnRight(turnIterations, dumbTurn)
+	updateStoredDirection(turnIterations)
 end
 
 -- > Getters

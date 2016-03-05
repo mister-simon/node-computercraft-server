@@ -1,5 +1,5 @@
-os.loadAPI("baseMovementHandler")
-os.loadAPI("actionHelper")
+os.loadAPI("./baseMovementHandler")
+os.loadAPI("./actionHelper")
 
 -- Handlers
 local forwardHandler = baseMovementHandler.new(turtle.forward, turtle.detect, turtle.dig, turtle.attack, actionHelper.handleBlockage)
@@ -16,8 +16,9 @@ local function repeatMovement(movementAction, distance, callback)
 			break
 		end
 
+		distanceCovered = i
 		if callback ~= nil then
-			callback(i)
+			callback()
 		end
 	end
 	
@@ -49,7 +50,7 @@ function back(distance, onMove)
 	local distanceCovered = repeatMovement(backHandler, distance, onMove)
 
 	-- If distanceCoverted is not the same as distance then moving back failed, switch handler and continue
-	if distanceCovered ~= distance
+	if distanceCovered ~= distance then
 		turnLeft(2)
 		distanceCovered = repeatMovement(forwardHandler, distance - distanceCovered, onMove)
 		turnLeft(2)
