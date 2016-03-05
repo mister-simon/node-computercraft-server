@@ -23,6 +23,7 @@ app.get('/listing/lua', function(req, res){
 
 app.get('/storeshit', function(req, res){
 	storedshit = "YEP";
+	res.send("STORED YEP");
 });
 
 app.get('/checkshit', function(req, res){
