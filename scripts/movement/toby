@@ -39,7 +39,7 @@ end
 
 local function createNewPoint(newVector, newDirection)
 	local lastVector = path[currentPathIndex].vector
-	newDirection = lib.ifNil(newDirection, newDirection)
+	newDirection = lib.ifNil(newDirection, currentDirection)
 	newVector = lib.ifNil(newVector, vector.new(lastVector.x, lastVector.y, lastVector.z))
 
 	currentPathIndex = currentPathIndex + 1
