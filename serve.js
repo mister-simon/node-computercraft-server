@@ -19,6 +19,23 @@ app.get('/listing/lua', function(req, res){
 	res.send(stringyFiles);
 });
 
+app.get('/storeshit', function(req, res){
+	fs.writeFile("/storedshit", "Hey, we stored some shit here!", function(err) {
+	    if(err) {
+	        return console.log(err);
+	    }
+
+	    console.log("The file was saved!");
+	});
+});
+
+app.get('/checkshit', function(req, res){
+	fs.readFile('/storedshit', function (err, data) {
+		if (err) throw err;
+		res.send(data);
+	});
+});
+
 app.listen(process.env.PORT || 8888, function () { console.log('WE GO NOW'); });
 
 
