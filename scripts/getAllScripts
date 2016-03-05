@@ -3,19 +3,31 @@ local listing_endpoint = "listing/lua"
 
 function getUrlContents(endpoint)
 	local http_handle = http.get(base_url .. endpoint)
-	local status = http_handle.getResponseCode()
 
-	if status ~= "200" then
+	if http_handle == nil then
 		print("Error getting: " .. endpoint)
-		print("Status code: " .. status)
-		os.exit()
+		return nil
 	end
 
-	return http_handle.readAll()
+	local status = http_handle.getResponseCode()
+
+	if status ~= 200 then
+		print("Error getting: " .. endpoint)
+		print("Status code: " .. status)
+		return nil
+	end
+
+	local data = http_handle.readAll()
+
+	http_handle.close()
+
+	return data
 end
 
 function main()
-	local listing = textutils.unserialise(getUrlContents(listing_endpoint))
+	local listing = getUrlContents(listing_endpoint)
+	if listing == nil then return end
+	listing = textutils.unserialise(listing)
 
 	local data = ""
 	local file_handle = nil
@@ -24,11 +36,13 @@ function main()
 		print("Getting file: "..listing[i])
 		data = getUrlContents(listing[i])
 
-		print("Writing file...")
-		
-		file_handle = fs.open(listing[i], "w");
-		file_handle.write(data)
-		file_handle.close()
+		if data ~= nil then
+			print("Writing file...")
+			
+			file_handle = fs.open(listing[i], "w");
+			file_handle.write(data)
+			file_handle.close()
+		end
 
 		print("")
 	end
