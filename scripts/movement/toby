@@ -24,19 +24,29 @@ end
 
 
 -- Params: String (x, y, z)
-local function updatePath(axis, amount, forceNew)
-	local current = path[currentPathIndex]
-	local currentVector = current.vector
+local function updatePathVector(axis, amount, forceNew)
+	local point = path[currentPathIndex]
+	local currentVector = point.vector
 	amount = lib.ifNil(amount, 1)
 
-	if currentAxis == axis and forceNew ~= true then
-		updateVector(current.vector, axis, amount)
+	if (currentDireciton == point.direction) or (currentAxis == axis and forceNew ~= true) then
+		updateVector(point.vector, axis, amount)
 	else
 		currentAxis = axis
-		currentPathIndex = currentPathIndex + 1
-		path[currentPathIndex] = {vector = vector.new(currentVector.x, currentVector.y, currentVector.z), direction = currentDirection}
+		updateVector(createNewPoint().vector, axis, amount);
 	end
 end
+
+local function createNewPoint(newVector, newDirection)
+	local lastVector = path[currentPathIndex].vector
+	newDirection = lib.ifNil(newDirection, newDirection)
+	newVector = lib.ifNil(newVector, vector.new(lastVector.x, lastVector.y, lastVector.z))
+
+	currentPathIndex = currentPathIndex + 1
+	path[currentPathIndex] = {vector = newVector, direction = currentDirection}
+
+	return path[currentPathIndex]
+end	
 
 -- Params: Int
 local function updateStoredDirection(turnAmount)
