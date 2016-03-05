@@ -5,6 +5,8 @@ var serveIndex = require('serve-index'),
 	path = require('path'),
 	app = express();
 
+var storedshit = "NOPE";
+
 // app.use('/', serveIndex(path.join(__dirname, 'scripts')));
 app.use('/scripts', express.static(path.join(__dirname, 'scripts')));
 
@@ -20,20 +22,11 @@ app.get('/listing/lua', function(req, res){
 });
 
 app.get('/storeshit', function(req, res){
-	fs.writeFile("/storedshit", "Hey, we stored some shit here!", function(err) {
-	    if(err) {
-	        return console.log(err);
-	    }
-
-	    console.log("The file was saved!");
-	});
+	storedshit = "YEP";
 });
 
 app.get('/checkshit', function(req, res){
-	fs.readFile('/storedshit', function (err, data) {
-		if (err) throw err;
-		res.send(data);
-	});
+	res.send(storedshit);
 });
 
 app.listen(process.env.PORT || 8888, function () { console.log('WE GO NOW'); });
