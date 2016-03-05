@@ -70,6 +70,7 @@ end
 
 
 -- Exposed API / Functions
+-- > Movement
 -- Params: Int
 function forward(distance)
 	-- TODO: GO
@@ -106,4 +107,27 @@ end
 function turnRight(turnIterations, dumbTurn)
 	-- TODO: GO
 	-- 1
+end
+
+-- > Getters
+-- Params: Int
+function getPathPoint(index)
+	index = lib.ifNil(index, currentPathIndex)
+	return path[currentPathIndex]
+end
+
+function getPath()
+	return path
+end
+
+function getStartPosition()
+	return startCoords
+end
+
+function getCurrentPosition()
+	return currentCoords
+end
+
+function getDirection()
+	return currentDirection
 end
