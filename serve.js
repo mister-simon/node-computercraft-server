@@ -1,3 +1,5 @@
+require('dot-env');
+
 var fs = require('fs');
 
 var serveIndex = require('serve-index'),
@@ -5,7 +7,7 @@ var serveIndex = require('serve-index'),
 	path = require('path'),
 	app = express();
 
-// app.use('/', serveIndex(path.join(__dirname, 'scripts')));
+	
 app.use('/scripts', express.static(path.join(__dirname, 'scripts')));
 
 app.get('/listing/lua', function(req, res){
@@ -19,7 +21,9 @@ app.get('/listing/lua', function(req, res){
 	res.send(stringyFiles);
 });
 
-app.listen(process.env.PORT || 8888, function () { console.log('WE GO NOW'); });
+app.listen(process.env.PORT || 8888, function () {
+	console.log('WE GO NOW');
+});
 
 
 function checkFolder(path, output){

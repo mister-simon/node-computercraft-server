@@ -1,0 +1,113 @@
+---------------------------------------------------
+-- Fancy version of the getAllScripts script
+--   Fancified for improved showiness when
+--   used in a startup / shell.run context
+---------------------------------------------------
+
+local base_url = "https://cc-scripts.herokuapp.com/"
+local listing_endpoint = "listing/lua"
+local doneMessage = "WE DID IT"
+
+local term_w, term_h = term.getSize()
+
+local data_statuses = {}
+local listing = {}
+
+function main()
+	listing = getUrlContents(listing_endpoint)
+	if listing == nil then return end
+	listing = textutils.unserialise(listing)
+
+	local listing_length = #listing
+
+	local file_handle = nil
+
+	local data = ""
+	for i=1,listing_length do
+		-- Output what's happening in a satisfying way
+		printLog(i)
+
+		-- Actually get and store the files
+		data = getUrlContents(listing[i])
+
+		if data == nil then
+			data_statuses[i] = false
+		else
+			data_statuses[i] = true
+
+			file_handle = fs.open(listing[i], "w");
+			file_handle.write(data)
+			file_handle.close()
+		end	
+	end
+
+	printLog(listing_length)
+
+	print()
+	fancyMessage(doneMessage)
+	
+	sleep(.5)
+end
+
+-- Fancy printing with loading bars and status messages
+function printLog(current_index)
+	term.clear()
+	term.setCursorPos(1,1)
+
+	loadingBar(#listing / current_index)
+
+	local curMessage = ""
+	for i=1,current_index do
+		curMessage = "Getting file: "..listing[i]
+
+		if data_statuses[i] ~= nil then
+			if data_statuses[i] then
+				print("YE - "..curMessage)
+			else
+				print("NO - "..curMessage)
+			end
+		else
+			print(curMessage)
+		end
+	end
+end
+
+-- Write a fancy message, centred in the console
+function fancyMessage(message)
+	message = ",.-^ > "..message.." < ^-.,"
+
+	local msg_length = string.len(message)
+	local cur_x, cur_y = term.getCursorPos()
+
+	term.setCursorPos(math.floor((term_w - msg_length) / 2), cur_y)
+	textutils.slowPrint(message)
+end
+
+-- Ratio should be between 0-1
+function loadingBar(ratio)
+	local char_pos = math.floor((term_w - 2) / ratio)
+	print("|"..string.rep("=", char_pos).."|")
+end
+
+-- The important bit.
+function getUrlContents(endpoint)
+	local http_handle = http.get(base_url .. endpoint)
+
+	if http_handle == nil then
+		return nil
+	end
+
+	local status = http_handle.getResponseCode()
+
+	if status ~= 200 then
+		return nil
+	end
+
+	local data = http_handle.readAll()
+
+	http_handle.close()
+
+	return data
+end
+
+main()
