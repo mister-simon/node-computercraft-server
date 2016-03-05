@@ -21,10 +21,6 @@ app.get('/listing/lua', function(req, res){
 	res.send(stringyFiles);
 });
 
-app.get('/envtest', function(req, res){
-	res.send(process.env.TESTVAR || "NOPE");
-});
-
 app.listen(process.env.PORT || 8888, function () {
 	console.log('WE GO NOW');
 });
