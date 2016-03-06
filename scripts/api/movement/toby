@@ -62,12 +62,14 @@ end
 
 -- Params: Int
 local function convertByDirection(value)
+	-- If Noth or West, then return positive else negative
 	if currentDirection ~= 1 and currentDirection ~= 4 then
 		return value * -1
 	end
 
 	return value
 end
+
 
 
 -- > On Move Callbacks
@@ -126,6 +128,8 @@ function turnRight(turnIterations, dumbTurn)
 	go.turnRight(turnIterations, dumbTurn)
 	updateStoredDirection(turnIterations)
 end
+
+
 
 -- > Getters
 -- Params: Int
