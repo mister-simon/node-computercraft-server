@@ -1,0 +1,7 @@
+function ifNil(currentValue, newValue)
+	if currentValue == nil then
+		return newValue
+	end
+	
+	return currentValue
+end
