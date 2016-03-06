@@ -1,10 +1,9 @@
-os.loadAPI("lib")
-os.loadAPI("go")
+os.loadAPI("./lib/helpers")
+os.loadAPI("./movement/go")
 
 
 -- Coordinates and Direction is relative to the turtle's start position
 local directions = {1 = "North",  2 = "East", 3 = "South", 4 = "West"}
-local axisFromDirectionDict = {1 = "z", 2 = "x", 3 = "z", 4 = "x"}
 local directionsLength = #directions
 
 local startCoords = vector.new(0, 0, 0)
@@ -27,7 +26,7 @@ end
 local function updatePathVector(axis, amount, forceNew)
 	local point = path[currentPathIndex]
 	local currentVector = point.vector
-	amount = lib.ifNil(amount, 1)
+	amount = helpers.ifNil(amount, 1)
 
 	if (currentDireciton == point.direction) or (currentAxis == axis and forceNew ~= true) then
 		updateVector(point.vector, axis, amount)
@@ -40,8 +39,8 @@ end
 -- Params: Vector, Int
 local function createNewPoint(newVector, newDirection)
 	local lastVector = path[currentPathIndex].vector
-	newDirection = lib.ifNil(newDirection, currentDirection)
-	newVector = lib.ifNil(newVector, vector.new(lastVector.x, lastVector.y, lastVector.z))
+	newDirection = helpers.ifNil(newDirection, currentDirection)
+	newVector = helpers.ifNil(newVector, vector.new(lastVector.x, lastVector.y, lastVector.z))
 
 	currentPathIndex = currentPathIndex + 1
 	path[currentPathIndex] = {vector = newVector, direction = currentDirection}
@@ -51,14 +50,14 @@ end
 
 -- Params: Int
 local function updateStoredDirection(turnAmount)
-		local newDirection = (currentDirection + turnAmount) % directionsLength
+	local newDirection = (currentDirection + turnAmount) % directionsLength
 
-		if newDirection == 0 then
-			newDirection = directionsLength
-		end
-		
-		currentDirection = newDirection
-		return newDirection
+	if newDirection == 0 then
+		newDirection = directionsLength
+	end
+	
+	currentDirection = newDirection
+	return newDirection
 end
 
 -- Params: Int, Int (1, -1)
@@ -117,7 +116,7 @@ end
 -- > Getters
 -- Params: Int
 function getPathPoint(index)
-	index = lib.ifNil(index, currentPathIndex)
+	index = helpers.ifNil(index, currentPathIndex)
 	return path[currentPathIndex]
 end
 

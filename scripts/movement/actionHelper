@@ -12,7 +12,7 @@ end
 -- Params: Handler Class
 function handleBlockage(handler)
 	local reaction
-	if handler.detect == true then
+	if handler.detect() == true then
 		reaction = handler.dig
 	else
 		reaction = handler.attack
@@ -23,13 +23,15 @@ end
 
 -- Params: Function, Function
 function unblockPath(action, unblockingAction)
-	while action == false do
+	local iterations = 0
+	while action() == false do
 		unblockingAction()
 		
-		if checkIterations then
+		if checkIterations() then
 			print(maxIterationsError)
 			return false
 		end
+		iterations = iterations + 1
 	end
 	
 	return true
