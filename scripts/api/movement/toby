@@ -3,37 +3,23 @@ os.loadAPI("./api/movement/go")
 
 
 -- Coordinates and Direction is relative to the turtle's start position
-local directions = {1 = "North",  2 = "East", 3 = "South", 4 = "West"}
+local directions = {"North", "East", "South", "West"}
 local directionsLength = #directions
+local directionToAxisDict = {"z", "x", "z", "x"}
 
 local startCoords = vector.new(0, 0, 0)
-local currentCoords = vector.new(0, 0, 0)
 local startDirection = 1
+local currentAxis = 'z'
 local currentDirection = 1
 local currentPathIndex = 1
-local path = {vector = vector.new(0, 0, 0), direction = 1}
+local path = {{vector = vector.new(0, 0, 0), direction = 1}}
 
 
 
 -- Private functions 
 -- Params: Vector, String, Int
-local function updateVector(vector, axis, amount) 
-	currentCoords[axis] = currentCoords[axis] + amount
-end
-
-
--- Params: String (x, y, z)
-local function updatePathVector(axis, amount, forceNew)
-	local point = path[currentPathIndex]
-	local currentVector = point.vector
-	amount = helpers.ifNil(amount, 1)
-
-	if (currentDireciton == point.direction) or (currentAxis == axis and forceNew ~= true) then
-		updateVector(point.vector, axis, amount)
-	else
-		currentAxis = axis
-		updateVector(createNewPoint().vector, axis, amount);
-	end
+local function updateVector(vectorObj, axis, amount) 
+	vectorObj[axis] = vectorObj[axis] + amount
 end
 
 -- Params: Vector, Int
@@ -46,7 +32,21 @@ local function createNewPoint(newVector, newDirection)
 	path[currentPathIndex] = {vector = newVector, direction = currentDirection}
 
 	return path[currentPathIndex]
-end	
+end
+
+-- Params: String (x, y, z)
+local function updatePathVector(axis, amount, forceNew)
+	local point = path[currentPathIndex]
+	local currentVector = point.vector
+	amount = helpers.ifNil(amount, 1)
+
+	if currentDirection == point.direction and forceNew ~= true then
+		updateVector(point.vector, axis, amount)
+	else
+		currentAxis = axis
+		updateVector(createNewPoint().vector, axis, amount);
+	end
+end
 
 -- Params: Int
 local function updateStoredDirection(turnAmount)
@@ -60,26 +60,36 @@ local function updateStoredDirection(turnAmount)
 	return newDirection
 end
 
--- Params: Int, Int (1, -1)
-local function moveOnVerticalAxis(distance, verticalDirection)
-	local distanceCovered = repeatMovement(distance, upAction)
-	updatePath("y", distanceCovered)
-	updateY(distanceCovered * verticalDirection)
+-- Params: Int
+local function convertByDirection(value)
+	if currentDirection ~= 1 and currentDirection ~= 4 then
+		return value * -1
+	end
+
+	return value
 end
 
 
 -- > On Move Callbacks
 local function updateHorizontalAxis()
-	updatePathVector(currentAxis, 1)
+	currentAxis = directionToAxisDict[currentDirection]
+
+	updatePathVector(currentAxis, convertByDirection(1))
+end
+
+local function updateHorizontalAxisNegative()
+	currentAxis = directionToAxisDict[currentDirection]
+	updatePathVector(currentAxis, convertByDirection(-1))
 end
 
 local function updateVerticalAxis()
 	currentAxis = 'y'
-	updatePathVector(currentAxis, 1)
+	updatePathVector(currentAxis, convertByDirection(1))
 end
 
 local function updateVerticalAxisNegative()
-	updatePathVector(currentAxis, -1)
+	currentAxis = 'y'
+	updatePathVector(currentAxis, convertByDirection(-1))
 end
 
 
@@ -89,6 +99,10 @@ end
 -- Params: Int
 function forward(distance)
 	go.forward(distance, updateHorizontalAxis)
+end
+
+function back(distance)
+	go.back(distance, updateHorizontalAxisNegative)
 end
 
 -- Params: Int
@@ -129,7 +143,7 @@ function getStartPosition()
 end
 
 function getCurrentPosition()
-	return currentCoords
+	return path[#path].vector
 end
 
 function getDirection()
