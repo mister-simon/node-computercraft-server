@@ -75,7 +75,6 @@ end
 -- > On Move Callbacks
 local function updateHorizontalAxis()
 	currentAxis = directionToAxisDict[currentDirection]
-
 	updatePathVector(currentAxis, convertByDirection(1))
 end
 
