@@ -2,7 +2,7 @@ os.loadAPI("scripts/api/lib/helpers")
 os.loadAPI("scripts/api/movement/go")
 
 
--- Coordinates and Direction is relative to the turtle's start position
+-- Coordinates and Direction are relative to the turtle's start position
 local directions = {"North", "East", "South", "West"}
 local directionsLength = #directions
 local directionToAxisDict = {"z", "x", "z", "x"}
