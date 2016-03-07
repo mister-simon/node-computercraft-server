@@ -103,7 +103,7 @@ end
 
 -- Write a fancy message, centred in the console
 function fancyMessage(message)
-	message = ",.-^ > "..message.." < ^-.,"
+	message = " ,.-^ > "..message.." < ^-., "
 	centreCursorForPrint(message)
 	textutils.slowPrint(message)
 end
