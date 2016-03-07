@@ -18,6 +18,8 @@ function main()
 	if listing == nil then return end
 	listing = textutils.unserialise(listing)
 
+	clearRoots(listing)
+
 	local listing_length = #listing
 
 	local file_handle = nil
@@ -47,6 +49,27 @@ function main()
 	fancyMessage(doneMessage)
 	
 	sleep(.5)
+end
+
+-- Clears out all folders from the current listing
+function clearRoots(listing)
+	local roots = {}
+
+	local match = 0
+	local root = ""
+
+	for i = 1,#listing do
+		match = string.find(listing[i], "/")
+
+		if match then
+			root = string.sub(listing[i], 0, match - 1)
+			roots[root] = true
+		end
+	end
+
+	for root,v in ipairs(roots) do
+		fs.delete(root)
+	end
 end
 
 -- Fancy printing with loading bars and status messages
