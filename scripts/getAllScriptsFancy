@@ -45,7 +45,6 @@ function main()
 
 	printLog(listing_length)
 
-	print()
 	fancyMessage(doneMessage)
 	
 	sleep(.5)
@@ -111,24 +110,25 @@ end
 
 -- Ratio should be between 0-1
 function loadingBar(ratio)
-	local char_pos = math.floor((term_w - 2) / ratio)
-	local bar = "|"..string.rep("=", char_pos).."|"
+	local char_pos = math.floor((term_w ) / ratio)
+	local bar = string.rep(" ", char_pos)
 	local bar_length = string.len(bar)
 
 	local percent = (bar_length / term_w) * 100
-	local text_col = "7"
+	local percent_text = tostring(math.floor(percent)) .. "%"
+	local percent_text_length = string.len(percent_text)
 
+	local text_col = "7"
 	if percent > 40 then text_col = "8" end
-	if percent > 70 then text_col = "1" end
+	if percent > 70 then text_col = "0" end
 	if percent == 100 then text_col = "5" end
 
-	percent = tostring(math.floor(percent)) .. "%"
-
-	centreCursorForPrint(percent)
-	print(percent)
-
 	centreCursorForPrint(bar)
-	term.blit(bar, string.rep(text_col, bar_length), string.rep(" ", bar_length))
+	term.blit(bar, string.rep(" ", bar_length), string.rep(text_col, bar_length))
+
+
+	centreCursorForPrint(percent_text)
+	term.blit(percent_text, string.rep(text_col, percent_text_length), string.rep(" ", percent_text_length))
 end
 
 -- The important bit.
