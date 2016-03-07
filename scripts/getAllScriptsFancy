@@ -18,6 +18,11 @@ function main()
 	if listing == nil then return end
 	listing = textutils.unserialise(listing)
 
+	-- table.insert(listing, 1,"cheeses/cakes/pies")
+	-- table.insert(listing, 4,"cheeses/ckaes/peis")
+	-- table.insert(listing, 3,"cheeses/ckeas/pies")
+	-- table.insert(listing, 6,"cheeses/caeks/peis")
+
 	clearRoots(listing)
 
 	local listing_length = #listing
@@ -34,16 +39,18 @@ function main()
 
 		if data == nil then
 			data_statuses[i] = false
+			printLog(i)
+			sleep(1.5)
 		else
 			data_statuses[i] = true
+
+			printLog(i)
 
 			file_handle = fs.open(listing[i], "w");
 			file_handle.write(data)
 			file_handle.close()
 		end	
 	end
-
-	printLog(listing_length)
 
 	fancyMessage(doneMessage)
 end
@@ -74,16 +81,15 @@ function printLog(current_index)
 	term.clear()
 	term.setCursorPos(1,1)
 
-	local curMessage = "Getting file: "
 	for i=1,current_index do
 		if data_statuses[i] ~= nil then
 			if data_statuses[i] then
-				print("YE - "..curMessage)
+				print("Got File:")
 			else
-				print("NO - "..curMessage)
+				print("FAILED File:")
 			end
 		else
-			print(curMessage)
+			print("Getting file: ")
 		end
 		print(listing[i])
 		print()
