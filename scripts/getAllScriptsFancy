@@ -46,8 +46,6 @@ function main()
 	printLog(listing_length)
 
 	fancyMessage(doneMessage)
-	
-	sleep(.5)
 end
 
 -- Clears out all folders from the current listing
