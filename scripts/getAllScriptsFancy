@@ -115,7 +115,7 @@ function loadingBar(ratio)
 	local bar_length = string.len(bar)
 
 	local percent = (bar_length / term_w) * 100
-	local percent_text = tostring(math.floor(percent)) .. "%"
+	local percent_text = " " .. tostring(math.floor(percent)) .. "% "
 	local percent_text_length = string.len(percent_text)
 
 	local text_col = "7"
