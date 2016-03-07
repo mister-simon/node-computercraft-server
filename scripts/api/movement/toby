@@ -1,5 +1,5 @@
-os.loadAPI("./api/lib/helpers")
-os.loadAPI("./api/movement/go")
+os.loadAPI("scripts/api/lib/helpers")
+os.loadAPI("scripts/api/movement/go")
 
 
 -- Coordinates and Direction is relative to the turtle's start position

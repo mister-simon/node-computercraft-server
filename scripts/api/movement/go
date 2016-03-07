@@ -1,6 +1,6 @@
-os.loadAPI("./api/lib/helpers")
-os.loadAPI("./api/movement/baseMovementHandler")
-os.loadAPI("./api/movement/actionHelper")
+os.loadAPI("scripts/api/lib/helpers")
+os.loadAPI("scripts/api/movement/baseMovementHandler")
+os.loadAPI("scripts/api/movement/actionHelper")
 
 -- Handlers
 local forwardHandler = baseMovementHandler.new(turtle.forward, turtle.detect, turtle.dig, turtle.attack, actionHelper.handleBlockage)
