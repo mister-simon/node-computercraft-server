@@ -77,12 +77,8 @@ function printLog(current_index)
 	term.clear()
 	term.setCursorPos(1,1)
 
-	loadingBar(#listing / current_index)
-
-	local curMessage = ""
+	local curMessage = "Getting file: "
 	for i=1,current_index do
-		curMessage = "Getting file: "..listing[i]
-
 		if data_statuses[i] ~= nil then
 			if data_statuses[i] then
 				print("YE - "..curMessage)
@@ -92,24 +88,47 @@ function printLog(current_index)
 		else
 			print(curMessage)
 		end
+		print(listing[i])
+		print()
 	end
+
+	loadingBar(#listing / current_index)
+end
+
+-- Prepares the cursor to print out a message
+function centreCursorForPrint(message)
+	local msg_length = string.len(message)
+	local cur_x, cur_y = term.getCursorPos()
+	term.setCursorPos(math.floor((term_w - msg_length) / 2) + 1, cur_y)
 end
 
 -- Write a fancy message, centred in the console
 function fancyMessage(message)
 	message = ",.-^ > "..message.." < ^-.,"
-
-	local msg_length = string.len(message)
-	local cur_x, cur_y = term.getCursorPos()
-
-	term.setCursorPos(math.floor((term_w - msg_length) / 2), cur_y)
+	centreCursorForPrint(message)
 	textutils.slowPrint(message)
 end
 
 -- Ratio should be between 0-1
 function loadingBar(ratio)
 	local char_pos = math.floor((term_w - 2) / ratio)
-	print("|"..string.rep("=", char_pos).."|")
+	local bar = "|"..string.rep("=", char_pos).."|"
+	local bar_length = string.len(bar)
+
+	local percent = (bar_length / term_w) * 100
+	local text_col = "7"
+
+	if percent > 40 then text_col = "8" end
+	if percent > 70 then text_col = "1" end
+	if percent == 100 then text_col = "5" end
+
+	percent = tostring(math.floor(percent)) .. "%"
+
+	centreCursorForPrint(percent)
+	print(percent)
+
+	centreCursorForPrint(bar)
+	term.blit(bar, string.rep(text_col, bar_length), string.rep(" ", bar_length))
 end
 
 -- The important bit.
