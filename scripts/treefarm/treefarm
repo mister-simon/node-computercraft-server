@@ -1,5 +1,5 @@
 os.loadAPI('scripts/api/movement/go')
--- os.loadAPI('inv')
+os.loadAPI('scripts/api/lib/inv')
 
 local sapling_name = "sapling"
 local bonemeal_name = "dye"
@@ -8,33 +8,6 @@ local fuel_name = "rod"
 
 local refuel_req = 200
 local wait_duration = 120
-
-
--- FAUX API CALL
-
-local inv = {}
-inv.findItem = function(itemName)
-	itemName = string.lower(itemName)
-
-	local itemData = {}
-	local searchResult = nil
-
-	for i=1,16 do
-		itemData = turtle.getItemDetail(i)
-
-		if itemData ~= nil then
-			itemData.name = string.lower(itemData.name)
-			searchResult = string.find(itemData.name, itemName)
-
-			if searchResult ~= nil then
-				turtle.select(i)
-				return true
-			end
-		end
-	end
-
-	return false
-end
 
 
 -- The good stuff
@@ -108,7 +81,7 @@ end
 function sapling()
 	go.up()
 
-	if inv.findItem(sapling_name) then
+	if inv.selectItem(sapling_name) then
 		turtle.place()
 	end
 
@@ -127,7 +100,7 @@ function bonemeal()
 	local placedUp = false
 
 	repeat
-		hasBonemeals = inv.findItem(bonemeal_name)
+		hasBonemeals = inv.selectItem(bonemeal_name)
 		placedUp = turtle.placeUp()
 	until not hasBonemeals or not placedUp
 
@@ -165,7 +138,7 @@ function refuel()
 		term.setCursorPos(1, y)
 		term.clearLine()
 
-		if inv.findItem(logs_name) or inv.findItem(fuel_name) then
+		if inv.selectItem(fuel_name) or inv.selectItem(logs_name) then
 			print("I EAT THIS FUEL!")
 			turtle.refuel(1)
 		else
@@ -185,10 +158,10 @@ end
 
 -- Dumps all the logs on the floor
 function dump()
-	while inv.findItem(logs_name) do
+	while inv.selectItem(logs_name) do
 		turtle.dropDown()
 	end
-	inv.findItem(sapling_name)
+	inv.selectItem(sapling_name)
 end
 
 -- Waits for a predetermined time and sucks up loose saplings
