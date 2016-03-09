@@ -33,7 +33,7 @@ end
 function findItems(id, isSearch)
 	local foundItems = {}
 
-	isSearch = helpers.ifNil(isSearch, false)
+	isSearch = helpers.ifNil(isSearch, true)
 	local idLower = string.lower(id)	
 
 	local d = {}
@@ -77,6 +77,29 @@ function findItem(id, isSearch)
 	end
 end
 
+-- Select the first occurence of an item
+function selectItem(id, isSearch)
+	local itemIndex = findItem(id, isSearch)
+
+	if itemIndex ~= nil then
+		turtle.select(itemIndex)
+		return true
+	else
+		return false
+	end
+end
+
+-- Get the table of useless items
+function getUseless()
+	return useless
+end
+
+-- Set the table of useless items
+function setUseless(newUseless)
+	useless = newUseless
+	return useless
+end
+
 -- Chuck a specific item
 function chuckItem(id, isSearch)
 	local foundItems = findItems(id, isSearch)
@@ -112,4 +135,3 @@ end
 function chuckAll()
 	return chuckItem("", true)
 end
-
