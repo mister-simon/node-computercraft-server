@@ -52,7 +52,7 @@ function back(distance, onMove)
 	distance = helpers.ifNil(distance, 1)
 	local distanceCovered = repeatMovement(backHandler.run, distance, onMove)
 
-	-- If distanceCoverted is not the same as distance then moving back failed, switch handler and continue
+	-- If distanceCovered is not the same as distance then moving back failed, switch handler and continue
 	if distanceCovered ~= distance then
 		turnLeft(2)
 		distanceCovered = repeatMovement(forwardHandler.run, distance - distanceCovered, onMove)
