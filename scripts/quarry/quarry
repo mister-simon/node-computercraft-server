@@ -16,8 +16,8 @@ os.loadAPI("scripts/quarry/dig")
 
 if length == nil or width == nil or height == nil then
 	print("Params:")
-	print("length: int")
-	print("width: int")
+	print("Length: int")
+	print("Width: int")
 	print("Height: int")
 	print("Up or Down Direction: int (0 for down, 1 for up)")
 	return
