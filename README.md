@@ -21,6 +21,6 @@ assert(loadstring(http.get("https://cc-scripts.herokuapp.com/scripts/getAllScrip
 -- Grab scripts again
 shell.run("scripts/getAllScriptsFancy")
 
--- Load some APIs
-shell.run("scripts/api/movement/toby")
+-- Load all the APIs
+shell.run("scripts/api/loadAll")
 ```
