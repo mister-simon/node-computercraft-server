@@ -1,1 +1,1 @@
-local d = http.get("https://cc-scripts.herokuapp.com/scripts/getAllScripts").readAll() local f = fs.open("gs","w") f.write(d) f.close() shell.run("gs") fs.delete("gs")
+assert(loadstring(http.get("https://cc-scripts.herokuapp.com/scripts/getAllScripts").readAll()))()

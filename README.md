@@ -12,7 +12,7 @@ Focus of the project is to make fun and fancy scripts in a more developer friend
 - Copy and paste the one liner: [scripts/getAllScriptsOneLiner.lua](https://github.com/mister-simon/node-computercraft-server/blob/master/scripts/getAllScriptsOneLiner.lua)
 
 ```lua
-local d = http.get("https://cc-scripts.herokuapp.com/scripts/getAllScripts").readAll() local f = fs.open("gs","w") f.write(d) f.close() shell.run("gs") fs.delete("gs")
+assert(loadstring(http.get("https://cc-scripts.herokuapp.com/scripts/getAllScripts").readAll()))()
 ```
 
 - Now you can add nice things like a startup script
