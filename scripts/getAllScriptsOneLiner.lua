@@ -1,1 +1,1 @@
-local data = http.get("https://cc-scripts.herokuapp.com/scripts/getAllScripts").readAll() local f = fs.open("getAllScripts","w") f.write(data) f.close()
+local d = http.get("https://cc-scripts.herokuapp.com/scripts/getAllScripts").readAll() local f = fs.open("gs","w") f.write(d) f.close() shell.run("gs") fs.delete("gs")
