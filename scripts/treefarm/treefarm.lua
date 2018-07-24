@@ -1,5 +1,5 @@
-os.loadAPI('scripts/api/movement/go')
-os.loadAPI('scripts/api/lib/inv')
+os.loadAPI('scripts/api/go.lua')
+os.loadAPI('scripts/api/inv.lua')
 
 local sapling_name = "sapling"
 local bonemeal_name = "dye"

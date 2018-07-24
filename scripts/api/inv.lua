@@ -1,7 +1,7 @@
 ------------------------
 -- Dependencies
 ------------------------
-os.loadAPI("scripts/api/lib/helpers")
+os.loadAPI("scripts/api/helpers.lua")
 
 ------------------------
 -- Configs
