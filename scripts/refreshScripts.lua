@@ -1,4 +1,4 @@
-local getAllScriptsFn = loadfile("scripts/getAllScripts")
+local getAllScriptsFn = loadfile("scripts/getAllScripts.lua")
 
 local scriptsList = fs.list("scripts")
 

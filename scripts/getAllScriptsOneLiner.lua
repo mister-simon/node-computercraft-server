@@ -1,1 +1,1 @@
-loadstring(http.get("https://cc-scripts.herokuapp.com/scripts/getAllScripts").readAll())()
+loadstring(http.get("https://cc-scripts.herokuapp.com/scripts/getAllScripts.lua").readAll())()
