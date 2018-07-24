@@ -12,15 +12,12 @@ Focus of the project is to make fun and fancy scripts in a more developer friend
 - Copy and paste the one liner: [scripts/getAllScriptsOneLiner.lua](https://github.com/mister-simon/node-computercraft-server/blob/master/scripts/getAllScriptsOneLiner.lua)
 
 ```lua
-loadstring(http.get("https://cc-scripts.herokuapp.com/scripts/getAllScripts").readAll())()
+loadstring(http.get("https://cc-scripts.herokuapp.com/scripts/getAllScripts.lua").readAll())()
 ```
 
 - Now you can add nice things like a startup script
 
 ```lua
 -- Grab scripts again
-shell.run("scripts/getAllScriptsFancy")
-
--- Load all the APIs
-shell.run("scripts/api/loadAll")
+shell.run("scripts/getAllScriptsFancy.lua")
 ```
