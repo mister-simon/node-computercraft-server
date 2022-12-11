@@ -25,7 +25,19 @@ function getUrlContents(url)
 end
 
 function parseListing(listing)
-	-- Todo... How to pull all the paths from the json listing
+	local tree = textutils.unserialiseJSON(listing)["tree"]
+
+	local listingUrls = {}
+	
+	for i = 1,#tree do
+		local path = tree[i]["path"]
+		
+		if(path ~= nil) then
+			table.insert(listingUrls, gitRawUrl.."/"..path)
+		end
+	end
+
+	return listingUrls
 end
 
 function clearScripts()
@@ -55,7 +67,7 @@ function main()
 	-- Find + parse out paths from json
 	local listingUrls = parseListing(listing)
 
-	clearScripts(listing)
+	clearScripts()
 
 	for i=1,#listingUrls do
 		pullFile(listingUrls[i])
