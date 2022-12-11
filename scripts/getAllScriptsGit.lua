@@ -52,7 +52,7 @@ function pullFile(url, path)
 	if data ~= nil then
 		print("Writing file...")
 		
-		local file_handle = fs.open(url, "w");
+		local file_handle = fs.open(path, "w");
 		file_handle.write(data)
 		file_handle.close()
 	end
