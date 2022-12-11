@@ -2,79 +2,69 @@ local gitTreeUrl = "https://api.github.com/repos/mister-simon/node-computercraft
 local gitRawUrl = "https://raw.githubusercontent.com/mister-simon/node-computercraft-server/cc-tweaked"
 
 function getUrlContents(url)
-	local http_handle = http.get(url)
+    local http_handle = http.get(url)
 
-	if http_handle == nil then
-		print("Error getting: " .. url)
-		return nil
-	end
+    if http_handle == nil then
+        print("Error getting: " .. url)
+        return nil
+    end
 
-	local status = http_handle.getResponseCode()
+    local status = http_handle.getResponseCode()
 
-	if status ~= 200 then
-		print("Error getting: " .. url)
-		print("Status code: " .. status)
-		return nil
-	end
+    if status ~= 200 then
+        print("Error getting: " .. url)
+        print("Status code: " .. status)
+        return nil
+    end
 
-	local data = http_handle.readAll()
+    local data = http_handle.readAll()
 
-	http_handle.close()
+    http_handle.close()
 
-	return data
+    return data
 end
 
 function parseListing(listing)
-	local tree = textutils.unserialiseJSON(listing)["tree"]
+    local tree = textutils.unserialiseJSON(listing)["tree"]
 
-	local listingUrls = {}
-	
-	for i = 1,#tree do
-		local path = tree[i]["path"]
+    for i = 1, #tree do
+        local path = tree[i]["path"]
 
-		if(path ~= nil) then
-			listingUrls[path] = gitRawUrl.."/"..path
-		end
-	end
-
-	return listingUrls
+        pullFile(gitRawUrl .. "/" .. path, path)
+    end
 end
 
 function clearScripts()
-	fs.delete("scripts")
+    fs.delete("scripts")
 end
 
 function pullFile(url, path)
-	print("Getting file: "..url)
+    print("Getting file: " .. path)
 
-	local data = getUrlContents(url)
+    local data = getUrlContents(url)
 
-	if data ~= nil then
-		print("Writing file...")
-		
-		local file_handle = fs.open(path, "w");
-		file_handle.write(data)
-		file_handle.close()
-	end
+    if data ~= nil then
+        print("Writing file...")
 
-	print("")
+        local file_handle = fs.open(path, "w");
+        file_handle.write(data)
+        file_handle.close()
+    end
+
+    print("")
 end
 
 function main()
-	local listing = getUrlContents(gitTreeUrl)
-	if listing == nil then return end
-	
-	-- Find + parse out paths from json
-	local listingUrls = parseListing(listing)
+    local listing = getUrlContents(gitTreeUrl)
 
-	clearScripts()
+    if listing == nil then
+        print("Listing nil'd")
+        return
+    end
 
-	for path,url in ipairs(listingUrls) do
-		pullFile(url, path)
-	end
-
-	for i=1,#listingUrls do
-	end
+    clearScripts()
+    
+    parseListing(listing)
 end
 
 main()
