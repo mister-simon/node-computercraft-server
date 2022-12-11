@@ -5,6 +5,7 @@
     "Lua.diagnostics.globals": [
         "textutils",
         "fs",
-        "http"
+        "http",
+        "term"
     ]
 }

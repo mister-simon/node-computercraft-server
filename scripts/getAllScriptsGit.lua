@@ -56,6 +56,12 @@ function pullFile(url, path)
 	print("")
 end
 
+function storeCurrentDate()
+	local file_handle = fs.open("startup/gitPulledAt.txt", "w");
+	file_handle.write(os.date("%Y-%m-%dT%H:%M:%SZ"))
+	file_handle.close()
+end
+
 function main()
 	local listing = getUrlContents(gitTreeUrl)
 
@@ -67,6 +73,8 @@ function main()
 	clearScripts()
 
 	parseListing(listing)
+	
+	storeCurrentDate()
 end
 
 main()
