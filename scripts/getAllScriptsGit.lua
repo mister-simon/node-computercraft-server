@@ -24,30 +24,17 @@ function getUrlContents(url)
 	return data
 end
 
-function clearRoots(listing)
-	local roots = {}
-
-	local match = 0
-	local root = ""
-
-	for i = 1,#listing do
-		match = string.find(listing[i], "/")
-
-		if match then
-			root = string.sub(listing[i], 0, match - 1)
-			roots[root] = true
-		end
-	end
-
-	for root,v in ipairs(roots) do
-		fs.delete(root)
-	end
+function clearScripts()
+	fs.delete("scripts")
 end
 
 function main()
 	local listing = getUrlContents(gitTreeUrl)
 	if listing == nil then return end
-	listing = textutils.unserialise(listing)
+	
+	-- Find + parse out paths from json
+
+	-- Clear paths
 
 	clearRoots(listing)
 
