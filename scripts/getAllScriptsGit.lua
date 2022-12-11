@@ -31,9 +31,9 @@ function parseListing(listing)
 	
 	for i = 1,#tree do
 		local path = tree[i]["path"]
-		
+
 		if(path ~= nil) then
-			table.insert(listingUrls, gitRawUrl.."/"..path)
+			listingUrls[path] = gitRawUrl.."/"..path
 		end
 	end
 
@@ -44,7 +44,7 @@ function clearScripts()
 	fs.delete("scripts")
 end
 
-function pullFile(url)
+function pullFile(url, path)
 	print("Getting file: "..url)
 
 	local data = getUrlContents(url)
@@ -69,8 +69,11 @@ function main()
 
 	clearScripts()
 
+	for path,url in ipairs(listingUrls) do
+		pullFile(url, path)
+	end
+
 	for i=1,#listingUrls do
-		pullFile(listingUrls[i])
 	end
 end
 
