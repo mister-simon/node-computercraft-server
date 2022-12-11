@@ -24,8 +24,28 @@ function getUrlContents(url)
 	return data
 end
 
+function parseListing(listing)
+	-- Todo... How to pull all the paths from the json listing
+end
+
 function clearScripts()
 	fs.delete("scripts")
+end
+
+function pullFile(url)
+	print("Getting file: "..url)
+
+	local data = getUrlContents(url)
+
+	if data ~= nil then
+		print("Writing file...")
+		
+		local file_handle = fs.open(url, "w");
+		file_handle.write(data)
+		file_handle.close()
+	end
+
+	print("")
 end
 
 function main()
@@ -33,27 +53,12 @@ function main()
 	if listing == nil then return end
 	
 	-- Find + parse out paths from json
+	local listingUrls = parseListing(listing)
 
-	-- Clear paths
+	clearScripts(listing)
 
-	clearRoots(listing)
-
-	local data = ""
-	local file_handle = nil
-
-	for i=1,#listing do
-		print("Getting file: "..listing[i])
-		data = getUrlContents(listing[i])
-
-		if data ~= nil then
-			print("Writing file...")
-			
-			file_handle = fs.open(listing[i], "w");
-			file_handle.write(data)
-			file_handle.close()
-		end
-
-		print("")
+	for i=1,#listingUrls do
+		pullFile(listingUrls[i])
 	end
 end
 
