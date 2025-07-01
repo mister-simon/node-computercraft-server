@@ -57,7 +57,7 @@ function pullFile(url, path)
 end
 
 function storeCurrentDate()
-	local file_handle = fs.open("startup/gitPulledAt.txt", "w");
+	local file_handle = fs.open("startup-gitPulledAt.txt", "w");
 	file_handle.write(os.date("%Y-%m-%dT%H:%M:%SZ"))
 	file_handle.close()
 end

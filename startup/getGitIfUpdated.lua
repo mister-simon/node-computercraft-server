@@ -1,4 +1,4 @@
-local file = fs.open("startup/sha.txt", "r")
+local file = fs.open("startup-sha.txt", "r")
 local commit = nil
 local latestCommit = nil
 
@@ -18,7 +18,7 @@ local commits = textutils.unserialiseJSON(
 if (commits[1] ~= nil) then
     latestCommit = commits[1]["sha"]
 
-    local file_handle = fs.open("startup/sha.txt", "w");
+    local file_handle = fs.open("startup-sha.txt", "w");
     file_handle.write(latestCommit)
     file_handle.close()
 end
