@@ -68,8 +68,6 @@ function pullFile(url, path)
 		file_handle.write(data)
 		file_handle.close()
 	end
-
-	os.sleep(1)
 end
 
 function storeCurrentDate()
@@ -91,6 +89,10 @@ function main()
 	parseListing(listing)
 	
 	storeCurrentDate()
+	
+	term.setCursorPos(1, 1)
+	term.clear()
+	centreCursorAndPrint("Done!")
 end
 
 main()
