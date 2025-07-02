@@ -51,6 +51,7 @@ function centreCursorAndPrint(message)
 end
 
 function pullFile(url, path)
+	term.setCursorPos(1, 1)
 	term.clear()
 	print("Getting file:")
 	centreCursorAndPrint(path)
@@ -58,6 +59,7 @@ function pullFile(url, path)
 	local data = getUrlContents(url)
 
 	if data ~= nil then
+		term.setCursorPos(1, 1)
 		term.clear()
 		print("Writing file:")
 		centreCursorAndPrint(path)
