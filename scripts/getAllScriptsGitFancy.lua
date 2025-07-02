@@ -41,7 +41,7 @@ function clearScripts()
 end
 
 -- Prepares the cursor to print out a message
-function centreCursorForPrint(message)
+function centreCursorAndPrint(message)
     local term_w, term_h = term.getSize()
 	local msgTrim = message:sub(1, term_w - 3) .. "..."
 	local msg_length = string.len(msgTrim)
@@ -65,11 +65,9 @@ function pullFile(url, path)
 		local file_handle = fs.open(path, "w");
 		file_handle.write(data)
 		file_handle.close()
-
-		os.sleep(1)
 	end
 
-	print("")
+	os.sleep(1)
 end
 
 function storeCurrentDate()
