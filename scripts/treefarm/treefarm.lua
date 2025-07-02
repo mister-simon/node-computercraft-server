@@ -1,14 +1,14 @@
-os.loadAPI('scripts/api/go.lua')
-os.loadAPI('scripts/api/inv.lua')
+local go = require("/scripts/api/go")
+local inv = require("/scripts/api/inv")
 
 local sapling_name = "sapling"
 local bonemeal_name = "dye"
 local logs_name = "log"
-local fuel_name = "rod"
+local fuel_name = "log"
 
 local refuel_req = 200
 local wait_duration = 120
-
+//
 
 -- The good stuff
 function main()

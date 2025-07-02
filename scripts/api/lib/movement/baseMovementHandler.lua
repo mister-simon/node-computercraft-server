@@ -29,3 +29,8 @@ function new(action, detect, dig, attack, unblocker)
 	
 	return handler;
 end
+
+
+return {
+	new = new,
+}

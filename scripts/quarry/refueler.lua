@@ -2,7 +2,7 @@
 --	: inv
 --	------------------
 
-os.loadAPI("scripts/api/inv.lua")
+local inv = require("/scripts/api/inv")
 
 local refuelAt = 8000
 local fuels = {

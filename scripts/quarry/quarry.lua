@@ -10,9 +10,9 @@ local width = tonumber(tArgs[2])
 local height = tonumber(tArgs[3])
 local vertical = tonumber(tArgs[4])
 
-os.loadAPI("scripts/api/inv.lua")
-os.loadAPI("scripts/quarry/refueler.lua")
-os.loadAPI("scripts/quarry/dig.lua")
+local inv = require("/scripts/api/inv")
+local refueler = require("/scripts/quarry/refueler")
+local dig = require("/scripts/quarry/dig")
 
 if length == nil or width == nil or height == nil then
 	print("Params:")

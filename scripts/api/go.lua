@@ -1,6 +1,6 @@
-os.loadAPI("scripts/api/helpers.lua")
-os.loadAPI("scripts/api/lib/movement/baseMovementHandler.lua")
-os.loadAPI("scripts/api/lib/movement/actionHelper.lua")
+local helpers = require("/scripts/api/helpers")
+local baseMovementHandler = require("/scripts/api/lib/movement/baseMovementHandler")
+local actionHelper = require("/scripts/api/lib/movement/actionHelper")
 
 -- Handlers
 local forwardHandler = baseMovementHandler.new(turtle.forward, turtle.detect, turtle.dig, turtle.attack, actionHelper.handleBlockage)
@@ -81,3 +81,12 @@ end
 function turnRight(turnIterations, dumbTurn)
 	repeatTurn(turtle.turnRight, turnIterations, dumbTurn)
 end
+
+return {
+	forward = forward,
+	back = back,
+	up = up,
+	down = down,
+	turnLeft = turnLeft,
+	turnRight = turnRight,
+}

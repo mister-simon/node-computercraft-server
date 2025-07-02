@@ -28,3 +28,8 @@ function getFiles(path)
 
     return files
 end
+
+return {
+    ifNil = ifNil,
+    getFiles = getFiles,
+}
