@@ -27,9 +27,6 @@ end
 function parseListing(listing)
 	local tree = textutils.unserialiseJSON(listing)["tree"]
 
-	term.clear()
-	print("Getting file:")
-
 	for i = 1, #tree do
 		if tree[i]["type"] == "blob" then
 			local path = tree[i]["path"]
@@ -45,22 +42,25 @@ end
 
 -- Prepares the cursor to print out a message
 function centreCursorForPrint(message)
-	local msg_length = string.len(message)
-	local cur_x, cur_y = term.getCursorPos()
     local term_w, term_h = term.getSize()
+	local msgTrim = message:sub(1, term_w - 3) .. "..."
+	local msg_length = string.len(msgTrim)
     
-	term.setCursorPos(math.floor((term_w - msg_length) / 2) + 1, cur_y)
+	term.setCursorPos(math.floor((term_w - msg_length) / 2) + 1, term_h / 2)
+	term.write(msgTrim)
 end
 
 function pullFile(url, path)
-	centreCursorForPrint(path)
-	term.clearLine()
-	print(path)
+	term.clear()
+	print("Getting file:")
+	centreCursorAndPrint(path)
 
 	local data = getUrlContents(url)
 
 	if data ~= nil then
-		print("Writing file...")
+		term.clear()
+		print("Writing file:")
+		centreCursorAndPrint(path)
 
 		local file_handle = fs.open(path, "w");
 		file_handle.write(data)
