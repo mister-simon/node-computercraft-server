@@ -47,6 +47,7 @@ end
 function centreCursorForPrint(message)
 	local msg_length = string.len(message)
 	local cur_x, cur_y = term.getCursorPos()
+    local term_w, term_h = term.getSize()
 	term.setCursorPos(math.floor((term_w - msg_length) / 2) + 1, cur_y)
 end
 
