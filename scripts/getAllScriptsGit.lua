@@ -30,8 +30,11 @@ function parseListing(listing)
 	for i = 1, #tree do
 		if tree[i]["type"] == "blob" then
 			local path = tree[i]["path"]
+			local matchStart = path:find("scripts/")
 
-			pullFile(gitRawUrl .. "/" .. path, path)
+			if matchStart == 1 then
+				pullFile(gitRawUrl .. "/" .. path, path)
+			end
 		end
 	end
 end
