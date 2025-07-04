@@ -34,3 +34,8 @@ function refuel()
 
 	return true
 end
+
+return {
+	needsFuel = needsFuel,
+	refuel = refuel,
+}

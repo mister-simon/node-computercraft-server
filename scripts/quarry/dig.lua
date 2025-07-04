@@ -80,3 +80,12 @@ function turn(direction)
 		end
 	end
 end
+
+return {
+	action = action,
+	rAction = rAction,
+	doAction = doAction,
+	checkIterations = checkIterations,
+	ifNil = ifNil,
+	turn = turn,
+}
