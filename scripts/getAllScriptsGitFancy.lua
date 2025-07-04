@@ -93,6 +93,10 @@ function main()
 	term.setCursorPos(1, 1)
 	term.clear()
 	centreCursorAndPrint("Done!")
+
+	os.sleep(3)
+	term.setCursorPos(1, 1)
+	term.clear()	
 end
 
 main()
