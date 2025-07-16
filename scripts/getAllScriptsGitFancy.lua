@@ -1,5 +1,5 @@
-local gitTreeUrl = "https://api.github.com/repos/mister-simon/node-computercraft-server/git/trees/cc-tweaked?recursive=1"
-local gitRawUrl = "https://raw.githubusercontent.com/mister-simon/node-computercraft-server/cc-tweaked"
+local gitTreeUrl = "https://api.github.com/repos/mister-simon/node-computercraft-server/git/trees/master?recursive=1"
+local gitRawUrl = "https://raw.githubusercontent.com/mister-simon/node-computercraft-server/master"
 
 function getUrlContents(url)
 	local http_handle = http.get(url)

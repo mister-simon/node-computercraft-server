@@ -7,7 +7,13 @@ Computercraft scripts made available via github public repo.
 Quickstart the computer:
 
 ```
-wget run https://raw.githubusercontent.com/mister-simon/node-computercraft-server/cc-tweaked/scripts/getAllScriptsGit.lua
+wget run https://raw.githubusercontent.com/mister-simon/node-computercraft-server/master/scripts/getAllScriptsGit.lua
 ```
 
-If wget doesn't exist then copy in [the one-liner](https://github.com/mister-simon/node-computercraft-server/blob/cc-tweaked/scripts/getAllScriptsOneLiner.lua) and run it.
+Or fancier script:
+
+```
+wget run https://raw.githubusercontent.com/mister-simon/node-computercraft-server/master/scripts/getAllScriptsGitFancy.lua
+```
+
+If wget doesn't exist then copy in [the one-liner](https://github.com/mister-simon/node-computercraft-server/blob/master/scripts/getAllScriptsOneLiner.lua) and run it.
