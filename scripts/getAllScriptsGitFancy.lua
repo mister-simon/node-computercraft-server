@@ -86,7 +86,7 @@ function main()
 	term.clear()
 	centreCursorAndPrint("Done!")
 
-	os.sleep(3)
+	os.sleep(1)
 	term.setCursorPos(1, 1)
 	term.clear()	
 end
