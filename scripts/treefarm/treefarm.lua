@@ -1,203 +1,298 @@
-os.loadAPI('scripts/api/go.lua')
-os.loadAPI('scripts/api/inv.lua')
+local go = require("/scripts/api/go")
+local inv = require("/scripts/api/inv")
 
-local sapling_name = "sapling"
-local bonemeal_name = "dye"
-local logs_name = "log"
-local fuel_name = "rod"
+local refuelAt = 100
+local instantLeafDecay = false
 
-local refuel_req = 200
-local wait_duration = 120
+local quietMode = false
 
+--------------------------------
+-- Side view of treefarm setup:
+-- TT - Turtle
+-- DD - Dirt
+-- DC - Dump Chest (drop sticks, logs, etc)
+-- CC - Composter
+-- </ - Hopper pointing < that way
+-- BR - Bone Retrieval
+-- (Water flow centred on CC)
 
--- The good stuff
-function main()
-	print("I'm a TREE FARMING GOD!")
+-- -- -- -- -- -- -- -- -- DC --
+-- -- -- -- -- TT -- -- -- -- CC
+-- -- -- -- DD -- -- -- -- BR </
+-- -- -- -- -- -- -- -- -- -- --
+-- == >> >> >> >> << << << << ==
+--------------------------------
 
-	-- If we have run out of materials
-	if not reset() then return false end
-
-	-- Do the stuff
-	sapling()
-	
-	local boned = bonemeal()
-	chop()
-
-	-- If we run out of bonemeal, skip the dump and wait stages
-	if not boned then
-		return true
-	end
-
-	-- Do we need to refuel
-	if not refuel() then return false end
-
-	-- Stuff to probably customise
-	dump()
-	wait()
-
-	return true
+local function say(msg)
+    if quietMode then return end
+    print()
+    print(msg)
 end
 
-function reset()
-	if not refuel() then return false end
+local function slowSay(msg, durationInSeconds)
+    if quietMode then return end
 
-	local hasSaplings = inv.findItem(sapling_name)
-	local hasBonemeals = inv.findItem(bonemeal_name)
-
-	if not hasSaplings or not hasBonemeals then
-		if not fetchSaplingsAndBonemeals() then
-			return false
-		end
-	end
-
-	return true
+    print()
+    textutils.slowPrint(msg, #msg / durationInSeconds)
 end
 
--- THIS WILL NEED TO BE CUSTOMISED
-function fetchSaplingsAndBonemeals()
-	go.turnLeft(2)
-	go.forward(3)
 
-	local sapped = true
-	local boned = true
+local function refuel()
+    local fuelLevel = turtle.getFuelLevel()
+    say("I have " .. fuelLevel .. " fuel left.")
 
-	if not inv.findItem(sapling_name) then
-		sapped = turtle.suck()
-		if not sapped then print("COULD NOT GET SAPPED") end
-	end
+    if fuelLevel > refuelAt then
+        say("That's actually fine.")
+        return true
+    end
 
-	if not inv.findItem(bonemeal_name) then
-		boned = turtle.suckUp()
-		if not boned then print("COULD NOT GET BONED") end
-	end
+    say("Sticks and logs may fuel my cogs!")
+    if inv.selectItem("stick", true) or inv.selectItem("log", true) then
+        return turtle.refuel()
+    end
 
-	go.turnLeft(2)
-	go.forward(3)
-
-	return sapped and boned
+    -- Something went wrong / no fuel to be found
+    return false
 end
 
--- Simple, places a sapling and returns to position
-function sapling()
-	go.up()
+local function storeStuff()
+    while inv.selectItem('log', true) or inv.selectItem('stick') do
+        say("Droppin a " .. turtle.getItemDetail()["name"])
 
-	if inv.selectItem(sapling_name) then
-		turtle.place()
-	end
+        if not turtle.dropUp() then
+            say("This chest ful... Seeya")
+            return false
+        end
+    end
 
-	go.down()
+    return true
 end
 
--- Spams bonemeal and returns to position.
--- Also, returns whether it was successful or not
-function bonemeal()
-	-- Move underneath dirt block
-	go.down()
-	go.forward()
+local function compostExcess()
+    -- Compost em
+    local saplingStacks = findItems('sapling', true)
 
+    -- Keep one stack, compost excess
+    if #saplingStacks > 1 then
+        say("I got saps here:" .. textutils.serialise(saplingStacks))
 
-	local hasBonemeals = true
-	local placedUp = false
+        for i = #saplingStacks, 2, -1 do
+            turtle.select(saplingStacks[i])
 
-	repeat
-		hasBonemeals = inv.selectItem(bonemeal_name)
-		placedUp = turtle.placeUp()
-	until not hasBonemeals or not placedUp
+            while turtle.getItemCount() ~= 0 do
+                turtle.place()
+            end
 
-	-- Get out from underneath dirt block
-	go.back()
-	go.up()
-
-	-- Return a lack of bonemeal
-	if not hasBonemeals then
-		return false
-	end
-
-	return true
+            say("Moving on...")
+        end
+    end
 end
 
--- Chops the tree down and returns to position
-function chop()
-	go.up()
-	go.forward()
+local function getBoned()
+    -- Put away all the bonemeal
+    local boneStacks = findItems('bone_meal', true)
 
-	local upCount = 0
-	while turtle.detectUp() do
-		go.up(1, function() upCount = upCount + 1 end)
-	end
-	go.down(upCount)
+    if #boneStacks == 0 and not turtle.suckDown() then
+        say("No bones today...")
+        return false
+    end
 
-	go.back()
-	go.down()
+    boneStacks = findItems('bone_meal', true)
+
+    for i = 1, #boneStacks do
+        turtle.select(boneStacks[i])
+        turtle.dropDown()
+        say("Pop this away.")
+    end
+
+    -- Try to refill the stack
+    while turtle.getItemSpace() ~= 0 and turtle.suckDown(turtle.getItemSpace()) do end
 end
 
-function refuel()
-	local x, y = term.getCursorPos()
+local function dump()
+    say("Its 2:00 - >_>")
 
-	while turtle.getFuelLevel() < refuel_req + 10 do
-		term.setCursorPos(1, y)
-		term.clearLine()
+    go.turnAround()
+    go.forward(4)
 
-		if inv.selectItem(fuel_name) or inv.selectItem(logs_name) then
-			print("I EAT THIS FUEL!")
-			turtle.refuel(1)
-		else
-			break
-		end
+    storeStuff()
+    compostExcess()
+    getBoned()
 
-		print("I HAVE FUEL: ".. tostring(turtle.getFuelLevel()) .. " / " .. tostring(refuel_req))
-	end
+    say("Break's over.")
 
-	if turtle.getFuelLevel() > refuel_req then
-		return true
-	else
-		print("I CAN'T MOVE! SOMEONE DIDN'T FUEL ME UP!")
-		return false
-	end
+    go.turnAround()
+    go.forward(4)
+
+    return true
 end
 
--- Dumps all the logs on the floor
-function dump()
-	while inv.selectItem(logs_name) do
-		turtle.dropDown()
-	end
-	inv.selectItem(sapling_name)
+local function selectSaplings()
+    say("Have sapling?")
+    return inv.selectItem('sapling', true)
 end
 
--- Waits for a predetermined time and sucks up loose saplings
-function wait()
-	local x, y = term.getCursorPos()
-
-	for i=1,wait_duration do
-		term.setCursorPos(1, y)
-		term.clearLine()
-
-		write("I'M WAITING... " .. tostring(i))
-		sleep(1)
-		
-		if turtle.suckUp() then
-			term.setCursorPos(1, y)
-			term.clearLine()
-			print("SOMETHING LANDED ON ME!")
-			print()
-		end
-	end
-
-	-- Clear any saplings off the dirt block
-	go.up()
-	turtle.suck()
-	go.down()
+local function selectBonemeal()
+    say("Have bone?")
+    return inv.selectItem('bone_meal', true)
 end
 
--- MAIN LOOP
+local function plantSapling()
+    if not selectSaplings() then
+        say("Uhoh! No sappers")
+        return false
+    end
 
-local loops = 0
-while main() do
-	term.clear()
-	term.setCursorPos(1,1)
-	loops = loops + 1
-	print("I ATE "..tostring(loops).." TREE(S) FOR BREAKFAST AND I'M STILL HUNGRY!")
+    say("Activating green fingers~")
+    return turtle.place()
 end
 
--- If things fail or whatever
-print("I'M BORED! I QUIT!")
+local function waitForGrowth()
+    say("Waiting for tree...")
+
+    repeat
+        say("Zzzz...")
+
+        os.sleep(5)
+        local isBlock, blockData = turtle.inspect()
+
+        if not isBlock then
+            return false
+        end
+
+        local isLog = blockData["name"]:find('log') ~= nil
+    until isLog
+
+    say("It grew!")
+
+    return true
+end
+
+local function growTree()
+    say("Grow grow grow!")
+
+    repeat
+        if not (selectBonemeal() and turtle.place()) then
+            return waitForGrowth()
+        end
+
+        local isBlock, blockData = turtle.inspect()
+        local isLog = blockData["name"]:find('log') ~= nil
+
+        if not isBlock then
+            return false
+        end
+
+        if not isLog then
+            say("Please grow!?")
+        end
+    until isLog
+
+    say("It grew!")
+
+    return true
+end
+
+local function mineTree()
+    say("Get to de choppah")
+    local uppies = 0
+
+    go.forward()
+    while turtle.detectUp() do
+        go.up(1, function() uppies = uppies + 1 end)
+    end
+    go.down(uppies)
+    go.back()
+
+    return true
+end
+
+local function waitForLeafDecay()
+    say("Decay...")
+    local waitMsg, waitSecs
+
+    if instantLeafDecay then
+        waitMsg = "Entropy is life"
+        waitSecs = 4
+    else
+        waitMsg = "Autumn is over the long leaves that love us,"
+        waitSecs = 60
+    end
+
+    slowSay(waitMsg, waitSecs)
+end
+
+local function collectSaplings()
+    say("Let's get sappy")
+
+    -- Select the first sapling stack to refill it
+    inv.selectItem('sapling', true)
+
+    while turtle.suck() do
+        say("There was something on this dirt block. Cool.")
+        os.sleep(1)
+    end
+
+    while turtle.suckUp() do
+        say("Something on me head LOL.")
+        os.sleep(1)
+    end
+
+    go.down()
+
+    while turtle.suckDown() do
+        say("Got something. Maybe there's more")
+        os.sleep(1)
+    end
+
+    go.up()
+
+    return true
+end
+
+local function main()
+    -- Refuel
+    if not refuel() then
+        say("I ran out of energ... Pls, insert log or stick... Zzzz.")
+        return false
+    end
+
+    if not dump() then
+        say("I had an accident?")
+        return false
+    end
+
+    -- Plant sapling
+    if not plantSapling() then
+        say("Oh, I forgot; I don't have fingers.")
+        return false
+    end
+
+    -- Prep bonemeal
+    if not growTree() then
+        say("That tree ain't growing, my friend... I give up.")
+        return false
+    end
+
+    -- Mine tree
+    if not mineTree() then
+        say("This tree got confusing. Not my problem now matei.")
+        return false
+    end
+
+    -- Wait for saplings
+    waitForLeafDecay()
+
+    -- Collect saplings
+    -- Compost excess saplings
+    if not collectSaplings() then
+        say('Saplings are dumb anyway')
+        return false
+    end
+
+    return true
+end
+
+-- Get it goin
+-- main()
+while main() do end

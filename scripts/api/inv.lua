@@ -1,7 +1,7 @@
 ------------------------
 -- Dependencies
 ------------------------
-os.loadAPI("scripts/api/helpers.lua")
+local helpers = require("/scripts/api/helpers")
 
 ------------------------
 -- Configs
@@ -135,3 +135,15 @@ end
 function chuckAll()
 	return chuckItem("", true)
 end
+
+return {
+	getEmptySlotCount = getEmptySlotCount,
+	findItems = findItems,
+	findItem = findItem,
+	selectItem = selectItem,
+	getUseless = getUseless,
+	setUseless = setUseless,
+	chuckItem = chuckItem,
+	chuckUseless = chuckUseless,
+	chuckAll = chuckAll,
+}

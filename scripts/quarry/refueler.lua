@@ -2,7 +2,7 @@
 --	: inv
 --	------------------
 
-os.loadAPI("scripts/api/inv.lua")
+local inv = require("/scripts/api/inv")
 
 local refuelAt = 8000
 local fuels = {
@@ -34,3 +34,8 @@ function refuel()
 
 	return true
 end
+
+return {
+	needsFuel = needsFuel,
+	refuel = refuel,
+}

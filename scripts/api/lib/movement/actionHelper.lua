@@ -40,3 +40,9 @@ end
 function autoFail(handler)
 	return false
 end
+
+return {
+	handleBlockage = handleBlockage,
+	unblockPath = unblockPath,
+	autoFail = autoFail,
+}

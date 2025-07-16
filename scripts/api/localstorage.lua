@@ -48,3 +48,14 @@ function pop(tableName, value)
 
 	return popped
 end
+
+return {
+	getLocation = getLocation,
+	getTable = getTable,
+	setTable = setTable,
+	reset = reset,
+	get = get,
+	set = set,
+	push = push,
+	pop = pop,
+}

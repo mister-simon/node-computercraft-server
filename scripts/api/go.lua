@@ -1,12 +1,15 @@
-os.loadAPI("scripts/api/helpers.lua")
-os.loadAPI("scripts/api/lib/movement/baseMovementHandler.lua")
-os.loadAPI("scripts/api/lib/movement/actionHelper.lua")
+local helpers = require("/scripts/api/helpers")
+local baseMovementHandler = require("/scripts/api/lib/movement/baseMovementHandler")
+local actionHelper = require("/scripts/api/lib/movement/actionHelper")
 
 -- Handlers
-local forwardHandler = baseMovementHandler.new(turtle.forward, turtle.detect, turtle.dig, turtle.attack, actionHelper.handleBlockage)
+local forwardHandler = baseMovementHandler.new(turtle.forward, turtle.detect, turtle.dig, turtle.attack,
+	actionHelper.handleBlockage)
 local backHandler = baseMovementHandler.new(turtle.back, turtle.detect, turtle.dig, turtle.attack, actionHelper.autoFail)
-local upHandler = baseMovementHandler.new(turtle.up, turtle.detectUp, turtle.digUp, turtle.attackUp, actionHelper.handleBlockage)
-local downHandler = baseMovementHandler.new(turtle.down, turtle.detectDown, turtle.digDown, turtle.attackDown, actionHelper.handleBlockage)
+local upHandler = baseMovementHandler.new(turtle.up, turtle.detectUp, turtle.digUp, turtle.attackUp,
+	actionHelper.handleBlockage)
+local downHandler = baseMovementHandler.new(turtle.down, turtle.detectDown, turtle.digDown, turtle.attackDown,
+	actionHelper.handleBlockage)
 
 
 -- Params: Function, Int, Function
@@ -23,7 +26,7 @@ local function repeatMovement(movementAction, distance, callback)
 			callback()
 		end
 	end
-	
+
 	return distanceCovered
 end
 
@@ -81,3 +84,17 @@ end
 function turnRight(turnIterations, dumbTurn)
 	repeatTurn(turtle.turnRight, turnIterations, dumbTurn)
 end
+
+function turnAround()
+	repeatTurn(turtle.turnLeft, 2)
+end
+
+return {
+	forward = forward,
+	back = back,
+	up = up,
+	down = down,
+	turnLeft = turnLeft,
+	turnRight = turnRight,
+	turnAround = turnAround,
+}

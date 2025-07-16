@@ -1,5 +1,5 @@
-os.loadAPI("scripts/api/helpers.lua")
-os.loadAPI("scripts/api/go.lua")
+local helpers = require("/scripts/api/helpers")
+local go = require("/scripts/api/go")
 
 
 -- Coordinates and Direction are relative to the turtle's start position
@@ -152,3 +152,18 @@ end
 function getDirection()
 	return currentDirection
 end
+
+
+return {
+	forward = forward,
+	back = back,
+	up = up,
+	down = down,
+	turnLeft = turnLeft,
+	turnRight = turnRight,
+	getPathPoint = getPathPoint,
+	getPath = getPath,
+	getStartPosition = getStartPosition,
+	getCurrentPosition = getCurrentPosition,
+	getDirection = getDirection,
+}
