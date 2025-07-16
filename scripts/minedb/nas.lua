@@ -5,6 +5,7 @@ local function getNas(modemSide)
     local remotes = peripheral.call(modemSide, "getNamesRemote")
     local inputName, outputName
 
+    -- Get all inventories available on the modem's network
     local getAll = function()
         return {
             peripheral.find(
@@ -18,6 +19,7 @@ local function getNas(modemSide)
         }
     end
 
+    -- Find the input chest peripheral
     local getInput = function()
         assert(
             inputName ~= nil,
@@ -32,6 +34,7 @@ local function getNas(modemSide)
         )
     end
 
+    -- Find the output chest peripheral
     local getOutput = function()
         assert(
             outputName ~= nil,
@@ -46,6 +49,7 @@ local function getNas(modemSide)
         )
     end
 
+    -- Get all storage peripherals, not including IO chests
     local getStorage = function()
         local input = getInput()
         local output = getOutput()
@@ -58,13 +62,17 @@ local function getNas(modemSide)
         )
     end
 
-    -- Currently does will not differentiate NBT data
+    -- Creates a table of unique items in the form:
+    -- { "minecraft:grass_block" = { getLocations = function(), getCount = function(), addItem = function() }, ... }
+    -- getLocations() provides a table in the form:
+    -- { {item = item, inv = peripheral, slot = number}, ...}
     local list = function()
         local items = {}
 
         local function newItem()
             local locations = {}
             return {
+                getLocations = function() return locations end,
                 getCount = function()
                     local count = 0
                     arr.each(locations, function(location)
