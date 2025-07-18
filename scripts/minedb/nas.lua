@@ -1,9 +1,18 @@
 local arr = require("/scripts/api/arr")
+local itemCollection = require("/scripts/minedb/item-collection")
 
 -- All things to do with interacting with networked storage can live here
+-- Intentionally "dumb" - keeping close to inventory APIs
 local function getNas(modemSide)
     local remotes = peripheral.call(modemSide, "getNamesRemote")
     local inputName, outputName
+
+    local function setInputName(name)
+        inputName = name
+    end
+    local function setOutputName(name)
+        outputName = name
+    end
 
     -- Get all inventories available on the modem's network
     local getAll = function()
@@ -69,27 +78,10 @@ local function getNas(modemSide)
     local list = function()
         local items = {}
 
-        local function newItem()
-            local locations = {}
-            return {
-                getLocations = function() return locations end,
-                getCount = function()
-                    local count = 0
-                    arr.each(locations, function(location)
-                        count = count + location.item.count
-                    end)
-                    return count
-                end,
-                addItem = function(inv, item, slot)
-                    table.insert(locations, { item = item, inv = inv, slot = slot })
-                end
-            }
-        end
-
         arr.each(getStorage(), function(inv, i)
             arr.each(inv.list(), function(item, slot)
                 if not items[item.name] then
-                    items[item.name] = newItem()
+                    items[item.name] = itemCollection()
                 end
 
                 items[item.name].addItem(inv, item, slot)
@@ -100,15 +92,21 @@ local function getNas(modemSide)
     end
 
     return {
+        -- Basic NAS access
         getAll = getAll,
-        setInputName = function(name) inputName = name end,
+
+        -- Input
+        setInputName = setInputName,
         getInput = getInput,
-        setOutputName = function(name) outputName = name end,
+
+        -- Output
+        setOutputName = setOutputName,
         getOutput = getOutput,
+
+        -- Storage manipulation
         getStorage = getStorage,
         list = list,
     }
 end
-
 
 return getNas
