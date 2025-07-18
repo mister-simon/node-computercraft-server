@@ -6,12 +6,16 @@ local itemCollection = require("/scripts/minedb/item-collection")
 local function getNas(modemSide)
     local remotes = peripheral.call(modemSide, "getNamesRemote")
     local inputName, outputName
+    local isStorageOnly = false
 
     local function setInputName(name)
         inputName = name
     end
     local function setOutputName(name)
         outputName = name
+    end
+    local function setStorageOnly()
+        isStorageOnly = true
     end
 
     -- Get all inventories available on the modem's network
@@ -60,6 +64,10 @@ local function getNas(modemSide)
 
     -- Get all storage peripherals, not including IO chests
     local getStorage = function()
+        if isStorageOnly then
+            return getAll()
+        end
+
         local input = getInput()
         local output = getOutput()
 
@@ -104,6 +112,7 @@ local function getNas(modemSide)
         getOutput = getOutput,
 
         -- Storage manipulation
+        setStorageOnly = setStorageOnly,
         getStorage = getStorage,
         list = list,
     }
