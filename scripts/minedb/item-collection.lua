@@ -1,4 +1,5 @@
 local arr = require("/scripts/api/arr")
+local compressCollection = require("/scripts/minedb/compress-collection")
 
 local function itemLocation(inv, item, slot)
     local function getDetail()
@@ -58,7 +59,7 @@ local function itemCollection()
         return _maxCount
     end
 
-    return {
+    local exports = {
         name = name,
         displayName = displayName,
         maxCount = maxCount,
@@ -87,6 +88,12 @@ local function itemCollection()
             end
         end
     }
+
+    exports.compress = function()
+        return compressCollection(exports)
+    end
+
+    return exports
 end
 
 return itemCollection
