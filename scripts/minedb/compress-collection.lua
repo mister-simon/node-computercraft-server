@@ -11,8 +11,6 @@ local function compressCollection(collection)
             return 0
         end
 
-        print(current.getId() .. " <> " .. target.getId())
-
         return current.inv.pushItems(
             target.getInvName(),
             current.slot,

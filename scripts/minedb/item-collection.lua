@@ -1,33 +1,6 @@
 local arr = require("/scripts/api/arr")
+local itemLocation = require("/scripts/minedb/item-location")
 local compressCollection = require("/scripts/minedb/compress-collection")
-
-local function itemLocation(inv, item, slot)
-    local function getDetail()
-        return inv.getItemDetail(slot)
-    end
-
-    local function getInvName()
-        return peripheral.getName(inv)
-    end
-
-    return {
-        inv = inv,
-        item = item,
-        slot = slot,
-        getDetail = getDetail,
-        getInvName = getInvName,
-        getCount = function()
-            local detail = getDetail()
-            if not detail then
-                return nil
-            end
-            return detail.count
-        end,
-        getId = function()
-            return getInvName() .. ":" .. slot
-        end,
-    }
-end
 
 -- Represents a single item type across a NAS
 -- An item type is stored on the NAS in many locations
