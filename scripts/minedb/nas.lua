@@ -73,8 +73,9 @@ local function getNas(modemSide)
 
         return arr.reject(
             getAll(),
-            function(item)
-                return item == input or item == output
+            function(store)
+                local storeName = peripheral.getName(store)
+                return storeName == inputName or storeName == outputName
             end
         )
     end
