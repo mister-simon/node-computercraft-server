@@ -69,9 +69,6 @@ local function getNas(modemSide)
             return getAll()
         end
 
-        local input = getInput()
-        local output = getOutput()
-
         return arr.reject(
             getAll(),
             function(store)
@@ -89,7 +86,7 @@ local function getNas(modemSide)
         inventories = inventories or getStorage()
         local items = {}
 
-        arr.each(inventories, function(inv, i)
+        arr.each(inventories, function(inv)
             arr.each(inv.list(), function(item, slot)
                 if not items[item.name] then
                     items[item.name] = itemCollection()
@@ -103,11 +100,11 @@ local function getNas(modemSide)
     end
 
     local function listInput()
-        return list({ getInput() })
+        return list({ [0] = getInput() })
     end
 
     local function listOutput()
-        return list({ getOutput() })
+        return list({ [0] = getOutput() })
     end
 
     -- Returns an iterator
