@@ -1,4 +1,5 @@
 local arr = require("/scripts/api/arr")
+local coIt = require("/scripts/api/coroutine-iterator")
 local itemCollection = require("/scripts/minedb/item-collection")
 
 -- All things to do with interacting with networked storage can live here
@@ -19,7 +20,7 @@ local function getNas(modemSide)
     end
 
     -- Get all inventories available on the modem's network
-    local getAll = function()
+    local function getAll()
         return {
             peripheral.find(
                 "inventory",
@@ -33,7 +34,7 @@ local function getNas(modemSide)
     end
 
     -- Find the input chest peripheral
-    local getInput = function()
+    local function getInput()
         assert(
             inputName ~= nil,
             "No input name set.\nCall setInputName with the unique inventory name.\nInventory must be on the same network!"
@@ -48,7 +49,7 @@ local function getNas(modemSide)
     end
 
     -- Find the output chest peripheral
-    local getOutput = function()
+    local function getOutput()
         assert(
             outputName ~= nil,
             "No output name set.\nCall setOutputName with the unique inventory name.\nInventory must be on the same network!"
@@ -63,7 +64,7 @@ local function getNas(modemSide)
     end
 
     -- Get all storage peripherals, not including IO chests
-    local getStorage = function()
+    local function getStorage()
         if isStorageOnly then
             return getAll()
         end
@@ -84,7 +85,7 @@ local function getNas(modemSide)
     -- { "minecraft:grass_block" = { getLocations = function(), getCount = function(), addItem = function() }, ... }
     -- getLocations() provides a table in the form:
     -- { {item = item, inv = peripheral, slot = number}, ...}
-    local list = function()
+    local function list()
         local items = {}
 
         arr.each(getStorage(), function(inv, i)
@@ -98,6 +99,28 @@ local function getNas(modemSide)
         end)
 
         return items
+    end
+
+    -- Returns an iterator
+    local function listEmpty()
+        local emptyCoroutine = coroutine.create(function()
+            local storage = coIt.passback(getStorage)
+
+            arr.each(storage, function(inv)
+                local size = coIt.passback(inv.size)
+                for slot = 1, size do
+                    local details = coIt.passback(function()
+                        return inv.getItemDetail(slot)
+                    end)
+
+                    if not details then
+                        coroutine.yield(inv, slot)
+                    end
+                end
+            end)
+        end)
+
+        return coIt.iterator(emptyCoroutine)
     end
 
     return {
@@ -116,6 +139,7 @@ local function getNas(modemSide)
         setStorageOnly = setStorageOnly,
         getStorage = getStorage,
         list = list,
+        listEmpty = listEmpty,
     }
 end
 
