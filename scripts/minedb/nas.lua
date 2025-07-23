@@ -85,10 +85,11 @@ local function getNas(modemSide)
     -- { "minecraft:grass_block" = { getLocations = function(), getCount = function(), addItem = function() }, ... }
     -- getLocations() provides a table in the form:
     -- { {item = item, inv = peripheral, slot = number}, ...}
-    local function list()
+    local function list(inventories)
+        inventories = inventories or getStorage()
         local items = {}
 
-        arr.each(getStorage(), function(inv, i)
+        arr.each(inventories, function(inv, i)
             arr.each(inv.list(), function(item, slot)
                 if not items[item.name] then
                     items[item.name] = itemCollection()
@@ -99,6 +100,14 @@ local function getNas(modemSide)
         end)
 
         return items
+    end
+
+    local function listInput()
+        return list({ getInput() })
+    end
+
+    local function listOutput()
+        return list({ getOutput() })
     end
 
     -- Returns an iterator
@@ -130,10 +139,12 @@ local function getNas(modemSide)
         -- Input
         setInputName = setInputName,
         getInput = getInput,
+        listInput = listInput,
 
         -- Output
         setOutputName = setOutputName,
         getOutput = getOutput,
+        listOutput = listOutput,
 
         -- Storage manipulation
         setStorageOnly = setStorageOnly,
