@@ -30,7 +30,9 @@ local function getResult(output)
     return nil
 end
 
-local function coroutineIterator(co)
+-- Iterates upon a coroutine. Will execute and pass back functions which
+-- break out of the coroutine and cause it to end prematurely.
+local function iterator(co)
     return function()
         local output, passback
 
@@ -46,7 +48,14 @@ local function coroutineIterator(co)
     end
 end
 
+-- Allows other coroutines to run in the iterator
+-- Before the result is passed back into the iterating coroutine.
+local function passback(fn)
+    return coroutine.yield(passbackToken, fn)
+end
+
 return {
     passbackToken = passbackToken,
-    coroutineIterator = coroutineIterator
+    iterator = iterator,
+    passback = passback
 }
