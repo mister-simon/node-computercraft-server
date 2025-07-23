@@ -85,6 +85,14 @@ local function find(arr, callback)
     return nil
 end
 
+-- Get the actual length of a table - including those without contiguous integer keys
+local function count(arr)
+    local n = 0
+    for _ in pairs(arr) do
+        n = n + 1
+    end
+    return n
+end
 
 return {
     insert = insert,
@@ -95,4 +103,5 @@ return {
     reject = reject,
     some = some,
     find = find,
+    count = count,
 }
