@@ -17,7 +17,7 @@ local function isPassbackFunction(output)
 end
 
 local function getPassbackFunction(output)
-    if isPassbackFunction() then
+    if isPassbackFunction(output) then
         return output[3]
     end
     return nil
