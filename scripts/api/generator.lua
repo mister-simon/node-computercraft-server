@@ -37,7 +37,7 @@ function Generator:run()
     while self.runTask do
         self.runTask = false
         local task = results[1]
-        isActive, results = splitFirst( self:resume( task(table.unpack(results, 2)) ) )
+        isActive, results = splitFirst(self:resume(task(table.unpack(results, 2))))
     end
 
     return table.unpack(results)
