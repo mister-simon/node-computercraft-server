@@ -109,24 +109,18 @@ local function getNas(modemSide)
 
     -- Returns an iterator
     local function listEmpty()
-        local emptyCoroutine = coroutine.create(function()
-            local storage = coIt.passback(getStorage)
+        return gen.create(function(yield, exec)
+            arr.each(exec(getStorage), function(inv)
+                local size = exec(inv.size);
+                local list = exec(inv.list);
 
-            arr.each(storage, function(inv)
-                local size = coIt.passback(inv.size)
                 for slot = 1, size do
-                    local details = coIt.passback(function()
-                        return inv.getItemDetail(slot)
-                    end)
-
-                    if not details then
-                        coroutine.yield(inv, slot)
+                    if not list[slot] then
+                        yield(inv, slot)
                     end
                 end
             end)
         end)
-
-        return coIt.iterator(emptyCoroutine)
     end
 
     return {
