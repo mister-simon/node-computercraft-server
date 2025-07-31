@@ -1,5 +1,5 @@
 local arr = require("/scripts/api/arr")
-local coIt = require("/scripts/api/coroutine-iterator")
+local gen = require("/scripts/api/generator")
 local itemCollection = require("/scripts/minedb/item-collection")
 
 -- All things to do with interacting with networked storage can live here
@@ -98,6 +98,25 @@ local function getNas(modemSide)
 
         return items
     end
+    
+
+    -- Untested lol
+    local function parallelList(inventories)
+        inventories = inventories or getStorage()
+        local items = {}
+
+        arr.parallelEach(inventories, function(inv)
+            arr.parallelEach(inv.list(), function(item, slot)
+                if not items[item.name] then
+                    items[item.name] = itemCollection()
+                end
+
+                items[item.name].addItem(inv, item, slot)
+            end)
+        end)
+
+        return items
+    end
 
     local function listInput()
         return list({ [0] = getInput() })
@@ -141,6 +160,7 @@ local function getNas(modemSide)
         setStorageOnly = setStorageOnly,
         getStorage = getStorage,
         list = list,
+        parallelList = parallelList,
         listEmpty = listEmpty,
     }
 end

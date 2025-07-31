@@ -20,6 +20,16 @@ local function each(arr, callback)
     end
 end
 
+local function parallelEach(arr, callback)
+    parallel.waitForAll(
+        map(arr, function(item, i)
+            return function()
+                callback(item, i)
+            end
+        end)
+    )
+end
+
 -- Map across a table
 local function map(arr, callback)
     local out = {}
@@ -27,6 +37,21 @@ local function map(arr, callback)
     each(arr, function(item, i)
         insert(out, i, callback(item, i))
     end)
+
+    return out
+end
+
+-- Map... But parall-ly
+local function parallelMap(arr, callback)
+    local out = {}
+
+    parallel.waitForAll(
+        map(arr, function(item, i)
+            return function()
+                insert(out, i, callback(item, i))
+            end
+        end)
+    )
 
     return out
 end
@@ -97,7 +122,9 @@ end
 return {
     insert = insert,
     each = each,
+    parallelEach = parallelEach,
     map = map,
+    parallelMap = parallelMap,
     values = values,
     filter = filter,
     reject = reject,
