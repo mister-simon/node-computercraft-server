@@ -83,7 +83,7 @@ function Button:listen()
         local hitY = y >= self.y and y < self.y + self.h
     until hitX and hitY
 
-    return event, button, x, y
+    return self, event, button, x, y
 end
 
 return Button
