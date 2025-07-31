@@ -129,9 +129,10 @@ function Nas:listOutput()
 end
 
 function Nas:listEmpty()
+    local storage = self:getStorage()
+
     return gen.create(function(yield, exec)
-        -- TODO: Is this a case where passing the instance method "self:getStorage" won't work?
-        arr.each(exec(self:getStorage), function(inv)
+        arr.each(storage, function(inv)
             local size = exec(inv.size);
             local list = exec(inv.list);
 
