@@ -15,9 +15,10 @@ function Button.new(parent)
         fg = colours.white,
         text = "",
         parent = parent or term.current(),
+        visibilityWasSet = false
     }
 
-    instance.window = window.create(instance.parent, instance.x, instance.y, instance.w, instance.h)
+    instance.window = window.create(instance.parent, instance.x, instance.y, instance.w, instance.h, false)
 
     return setmetatable(instance, Button)
 end
@@ -52,6 +53,10 @@ function Button:setFg(fg)
 end
 
 function Button:render()
+    if not self.visibilityWasSet then
+        self:show()
+    end
+
     self.window.setBackgroundColour(self.bg)
     self.window.setTextColour(self.fg)
     self.window.clear()
@@ -69,10 +74,12 @@ end
 
 function Button:show()
     self.window.setVisible(true)
+    self.visibilityWasSet = true
 end
 
 function Button:hide()
     self.window.setVisible(false)
+    self.visibilityWasSet = true
 end
 
 function Button:listen()
