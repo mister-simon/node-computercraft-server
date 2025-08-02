@@ -30,8 +30,11 @@ function parseListing(listing)
 	for i = 1, #tree do
 		if tree[i]["type"] == "blob" then
 			local path = tree[i]["path"]
+			local matchStart = path:find("scripts/")
 
-			pullFile(gitRawUrl .. "/" .. path, path)
+			if matchStart == 1 then
+				pullFile(gitRawUrl .. "/" .. path, path)
+			end
 		end
 	end
 end
@@ -42,10 +45,10 @@ end
 
 -- Prepares the cursor to print out a message
 function centreCursorAndPrint(message)
-    local term_w, term_h = term.getSize()
+	local term_w, term_h = term.getSize()
 	local msgTrim = message:sub(1, term_w - 3) .. "..."
 	local msg_length = string.len(msgTrim)
-    
+
 	term.setCursorPos(math.floor((term_w - msg_length) / 2) + 1, term_h / 2)
 	term.write(msgTrim)
 end
@@ -81,14 +84,14 @@ function main()
 	clearScripts()
 
 	parseListing(listing)
-	
+
 	term.setCursorPos(1, 1)
 	term.clear()
 	centreCursorAndPrint("Done!")
 
 	os.sleep(1)
 	term.setCursorPos(1, 1)
-	term.clear()	
+	term.clear()
 end
 
 main()
