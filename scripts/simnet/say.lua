@@ -3,5 +3,6 @@ return function(side, quiet)
         rednet.open(side)
         rednet.broadcast(msg, "simnet")
         if quiet then return end
+        print(msg)
     end
 end
