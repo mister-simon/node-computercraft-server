@@ -1,12 +1,18 @@
 local NAS = require("/scripts/minedb/nas-class")
 local arr = require("/scripts/api/arr")
 local ls = require("/scripts/api/localstorage")
+local toWindow = require("/scripts/api/window").toWindow
 
-return function()
-    local mainWindow = term.current()
+return function(compWindow)
+    local monitorWindow
 
-    term.clear()
-    term.setCursorPos(1, 1)
+    -- Some wrapper functions to make writing to different outputs easier
+    local toComp = toWindow(compWindow)
+    local toMon = function(fn) end
+    local toBoth = function(fn)
+        toComp(fn)
+        toMon(fn)
+    end
 
     -- Select a monitor as the "main" window?
     local monitors = arr.map(
@@ -16,53 +22,74 @@ return function()
         end
     )
 
+    term.clear()
+    term.setCursorPos(1, 1)
+
     if #monitors ~= 0 then
         -- Allow "local" term to be used
         table.insert(monitors, "local")
         local monitor = ls.ensure("minedb", "monitor", monitors)
-        mainWindow = peripheral.wrap(monitor)
+        monitorWindow = peripheral.wrap(monitor)
+        toMon = function(fn)
+            local cur = term.current()
+            term.redirect(monitorWindow)
+            fn()
+            term.redirect(cur)
+        end
     end
 
-    term.redirect(mainWindow)
+    toBoth(function()
+        term.clear()
+        term.setCursorPos(1, 1)
 
-    term.clear()
-    term.setCursorPos(1, 1)
+        -- Draw a logo :)
+        local logo = assert(paintutils.loadImage("/scripts/minedb/states/minedb.nfp"));
+        paintutils.drawImage(logo, 2, 2)
+        term.setBackgroundColour(colours.black)
+        print("\n")
+    end)
 
-    -- Draw a logo :)
-    local logo = assert(paintutils.loadImage("/scripts/minedb/states/minedb.nfp"));
-    paintutils.drawImage(logo, 2, 2)
-    mainWindow.setBackgroundColour(colours.black)
 
-
-    -- Intentionally create a single line window at the bottom of the screen
-    -- In case we're projecting to a monitor at this point. Input should be easier.
+    -- Create a terminal region below the logo
     local tw, th = term.getSize()
-    local subwindow = window.create(mainWindow, 1, th, tw, 1)
-    term.redirect(subwindow)
+    local toBtm = toWindow(window.create(compWindow, 1, 13, tw, th - 13))
 
-    -- Prompt for or retrieve from settings a modem side + create the NAS
-    local modemSides = arr.map(
-        { peripheral.find('modem') },
-        function(modem)
-            return peripheral.getName(modem)
-        end
-    )
+    local nas
 
-    local nas = NAS.new(ls.ensure("minedb", "side", modemSides))
+    toBtm(function()
+        -- Prompt for or retrieve from settings a modem side + create the NAS
+        local modemSides = arr.map(
+            { peripheral.find('modem') },
+            function(modem)
+                return peripheral.getName(modem)
+            end
+        )
 
-    -- Prompt for or retrieve from settings the io chest
-    local input = ls.ensure("minedb", "input", nas.remotes)
-    nas:setInputName(input)
-    nas:setOutputName(input)
+        nas = NAS.new(ls.ensure("minedb", "side", modemSides))
 
-    -- Hooray
-    term.write("All set!")
+        -- Prompt for or retrieve from settings the io chest
+        local input = ls.ensure("minedb", "input", nas.remotes)
+        nas:setInputName(input)
+        nas:setOutputName(input)
+    end)
+
+    toBoth(function()
+        -- Hooray
+        print("All set!")
+    end)
+
     sleep(3)
 
-    term.redirect(mainWindow)
-
     term.clear()
     term.setCursorPos(1, 1)
 
-    return nas
+    local windows = {
+        comp = compWindow,
+        mon = monitorWindow,
+        toComp = toComp,
+        toMon = toMon,
+        toBoth = toBoth,
+    }
+
+    return nas, windows
 end

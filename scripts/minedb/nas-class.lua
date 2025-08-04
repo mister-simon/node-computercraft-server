@@ -2,6 +2,7 @@ local arr = require("/scripts/api/arr")
 local gen = require("/scripts/api/generator")
 local itemCollection = require("/scripts/minedb/item-collection")
 
+--- @class Nas
 local Nas = {}
 Nas.__index = Nas
 

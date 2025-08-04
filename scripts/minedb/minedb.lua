@@ -9,25 +9,35 @@ local pulling = require("/scripts/minedb/states/pulling")
 local pushing = require("/scripts/minedb/states/pushing")
 
 local function main()
+    local compWindow = term.current()
+
     -- Startup
-    local nas = startup()
+    local nas, windows = startup(compWindow)
 
     local states = {
-        normal = normal.new(nas),
-        pulling = pulling.new(nas),
-        pushing = pushing.new(nas),
+        normal = normal.new(nas, windows),
+        pulling = pulling.new(nas, windows),
+        pushing = pushing.new(nas, windows),
     }
 
     local state = states.normal
 
     -- Run those states
     repeat
-        state = state.run(states)
+        state = state:run(states)
     until not state
 
-    term.setBackgroundColour(colours.black)
-    term.clear()
-    term.setCursorPos(1, 1)
+    windows.toBoth(function()
+        term.setBackgroundColour(colours.black)
+        term.clear()
+        term.setCursorPos(1, 1)
+
+        print("Bye! :)")
+        sleep(1)
+
+        term.clear()
+        term.setCursorPos(1, 1)
+    end)
 end
 
 main()
