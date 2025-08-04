@@ -23,10 +23,9 @@ function get(tableName, key, default)
 
 	if tab[key] ~= nil then
 		return tab[key]
-	else 
+	else
 		return default
 	end
-
 end
 
 function set(tableName, key, value)
@@ -41,12 +40,23 @@ function push(tableName, value)
 	return setTable(tableName, tab)
 end
 
-function pop(tableName, value)
+function pop(tableName)
 	local tab = getTable(tableName)
 	local popped = table.remove(tab)
 	setTable(tableName, tab)
 
 	return popped
+end
+
+function require(tableName, key)
+	while not get(tableName, key) do
+		write("Set " .. key .. ": ")
+		local val = io.read()
+		if val ~= '' then
+			set(tableName, key, val)
+		end
+	end
+	return get(tableName, key)
 end
 
 return {
@@ -58,4 +68,5 @@ return {
 	set = set,
 	push = push,
 	pop = pop,
+	require = require,
 }
