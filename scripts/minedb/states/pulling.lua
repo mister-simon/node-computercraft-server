@@ -1,4 +1,4 @@
-local NAS = require("/scripts/minedb/nas-class")
+local NAS = require("/scripts/minedb/nas")
 local arr = require("/scripts/api/arr")
 local ls = require("/scripts/api/localstorage")
 

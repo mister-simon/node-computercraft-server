@@ -1,7 +1,4 @@
 local pp = require("cc.pretty").pretty_print
-local ls = require("/scripts/api/localstorage")
-local arr = require("/scripts/api/arr")
-local NAS = require("/scripts/minedb/nas-class")
 
 local startup = require("/scripts/minedb/states/startup")
 local normal = require("/scripts/minedb/states/normal")
