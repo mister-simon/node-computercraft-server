@@ -9,9 +9,9 @@ end
 local function main()
     snow()
     sleep(30)
-    snow()
 
     while turtle.attack() do end
+    snow()
 
     sleep(40)
 
