@@ -1,6 +1,9 @@
 local settingsFile = '.settings'
 local storage = 'localstorage'
 
+local completion = require("cc.completion")
+local arr = require("/scripts/api/arr")
+
 function getLocation(tableName)
 	return storage .. "." .. tableName
 end
@@ -48,10 +51,29 @@ function pop(tableName)
 	return popped
 end
 
-function require(tableName, key)
+function ensure(tableName, key, suggestions)
+	local reader = io.read
+
+	if suggestions then
+		reader = function()
+			local out = read(nil, nil, function(text) return completion.choice(text, suggestions) end)
+
+			-- Ensure the suggestion matches an option
+			local matches = arr.some(suggestions, function(option)
+				return option == out
+			end)
+
+			if not matches then
+				out = ''
+			end
+
+			return out
+		end
+	end
+
 	while not get(tableName, key) do
 		write("Set " .. key .. ": ")
-		local val = io.read()
+		local val = reader()
 		if val ~= '' then
 			set(tableName, key, val)
 		end
@@ -68,5 +90,5 @@ return {
 	set = set,
 	push = push,
 	pop = pop,
-	require = require,
+	ensure = ensure,
 }

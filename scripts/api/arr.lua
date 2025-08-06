@@ -13,21 +13,20 @@ local function insert(out, index, value)
     error("Unusable index type:" .. type(index))
 end
 
+-- Get the actual length of a table - including those without contiguous integer keys
+local function count(arr)
+    local n = 0
+    for _ in pairs(arr) do
+        n = n + 1
+    end
+    return n
+end
+
 -- Run a callback across a table
 local function each(arr, callback)
     for i, item in pairs(arr) do
         callback(item, i)
     end
-end
-
-local function parallelEach(arr, callback)
-    parallel.waitForAll(
-        map(arr, function(item, i)
-            return function()
-                callback(item, i)
-            end
-        end)
-    )
 end
 
 -- Map across a table
@@ -46,14 +45,29 @@ local function parallelMap(arr, callback)
     local out = {}
 
     parallel.waitForAll(
-        map(arr, function(item, i)
-            return function()
-                insert(out, i, callback(item, i))
-            end
-        end)
+        table.unpack(
+            map(arr, function(item, i)
+                return function()
+                    insert(out, i, callback(item, i))
+                end
+            end)
+        )
     )
 
     return out
+end
+
+-- Run a callback across a table parallelly
+local function parallelEach(arr, callback)
+    local todo = map(arr, function(item, i)
+        return function()
+            callback(item, i)
+        end
+    end)
+
+    parallel.waitForAll(
+        table.unpack(todo)
+    )
 end
 
 -- Create a new table from a table, stripping existing indexes
@@ -108,15 +122,6 @@ local function find(arr, callback)
         end
     end
     return nil
-end
-
--- Get the actual length of a table - including those without contiguous integer keys
-local function count(arr)
-    local n = 0
-    for _ in pairs(arr) do
-        n = n + 1
-    end
-    return n
 end
 
 return {

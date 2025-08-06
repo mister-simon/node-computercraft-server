@@ -1,4 +1,6 @@
+local ensureWidth = require "cc.strings".ensure_width
 local arr = require("/scripts/api/arr")
+local Button = require("/scripts/api/button")
 local toWindow = require("/scripts/api/window").toWindow
 
 -- Normal
@@ -40,6 +42,23 @@ local function createUiFor(output)
     }
 end
 
+local function createBtn(text, action, bg, fg)
+    bg = bg or colours.green
+    fg = fg or colours.white
+
+    local btn = Button.new()
+    local w = text:len()
+    btn:setText(text)
+    btn:setSize(w, 1)
+    btn:setBg(bg)
+    btn:setFg(fg)
+
+    return {
+        btn = btn,
+        action = action,
+        w = w
+    }
+end
 
 --- @class NormalState
 --- @field nas Nas
@@ -58,8 +77,10 @@ function state.new(nas, windows)
     local instance = {
         nas = nas,
         ui = createUiFor(preferredOutput),
+        usingMonitor = preferredOutput ~= windows.comp,
         items = nil,
         search = nil,
+        listOffset = 0,
     }
 
     return setmetatable(instance, state)
@@ -73,35 +94,133 @@ function state:updateTop()
     end);
 end
 
-function state:updateLeft()
+function state:updateLeft(states)
     toWindow(self.ui.left)(function()
-        print("Loading...")
-
-        local items = self.nas:list()
+        local lw, lh = term.getSize()
+        local indexW = 4
+        local actionsW = 11
+        local detailW = lw - indexW - actionsW
 
         term.clear()
         term.setCursorPos(1, 1)
 
-        arr.each(items, function(collection, name)
-            print(collection.displayName() .. " x" .. collection.getCount())
+        print("Loading...")
+
+        local items = arr.values(self.nas:list())
+
+        table.sort(items, function(a, b)
+            return a.getCount() >= b.getCount()
         end)
+
+        term.clear()
+        term.setCursorPos(1, 1)
+
+        self.leftBtns = {}
+
+        for i = 1, lh do
+            local itemIndex = i + self.listOffset
+            local collection = items[itemIndex]
+
+            term.setCursorPos(1, i)
+
+            if (i % 2) == 0 then
+                term.setBackgroundColour(colours.grey)
+            else
+                term.setBackgroundColour(colours.black)
+            end
+
+            if collection then
+                write(ensureWidth(i .. "-", indexW))
+                write(ensureWidth(collection.displayName(), detailW))
+
+                local one = createBtn("1", function()
+                    states.pushing:queue({
+                        quantity = 1,
+                        name = collection.name()
+                    })
+                    self:updateRight()
+                    self.ui.scene.redraw()
+
+                    return true
+                end)
+
+                one.btn:setPos(indexW + detailW, i)
+
+                local stack = createBtn("64", function()
+                    states.pushing:queue({
+                        quantity = 64,
+                        name = collection.name()
+                    })
+                    self:updateRight()
+                    self.ui.scene.redraw()
+
+                    return true
+                end)
+                stack.btn:setPos(indexW + detailW + 2, i)
+
+                local all = createBtn("ALL", function()
+                    states.pushing:queue({
+                        quantity = collection.getCount(),
+                        name = collection.name()
+                    })
+                    self:updateRight()
+                    self.ui.scene.redraw()
+
+                    return true
+                end)
+                all.btn:setPos(indexW + detailW + 3, i)
+
+                self.leftBtns = {
+                    one, stack, all
+                }
+
+                one.btn:render()
+                stack.btn:render()
+                all.btn:render()
+            end
+        end
     end);
 end
 
-function state:updateRight()
+function state:updateRight(states)
+    toWindow(self.ui.right)(function()
+        term.clear()
+        term.setCursorPos(1, 1)
+
+        arr.each(states.pushing:getQueue(), function(job, i)
+            print(i)
+        end)
+    end)
 end
 
 function state:run(states)
     self.ui.scene.setVisible(true)
 
     self:updateTop()
-    self:updateLeft()
-    self:updateRight()
+    self:updateLeft(states)
+    self:updateRight(states)
 
     self.ui.scene.redraw()
-    sleep(3)
 
-    -- return states.pulling
+    repeat
+        local continue = true
+
+        parallel.waitForAny(
+            table.unpack(arr.map(self.leftBtns, function(item)
+                return function()
+                    local btn = item["btn"]
+                    local action = item["action"]
+
+                    btn:listen(self.usingMonitor)
+                    self.ui.left.write("Hello")
+
+                    continue = action()
+                end
+            end))
+        )
+    until not continue
+
+    return states.normal
 end
 
 return state

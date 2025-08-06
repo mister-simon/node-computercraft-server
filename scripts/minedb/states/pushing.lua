@@ -45,6 +45,10 @@ function state:queue(...)
     table.insert(self._queue, { ... })
 end
 
+function state:getQueue(...)
+    return self._queue
+end
+
 function state:run(states)
     return states.normal
 end

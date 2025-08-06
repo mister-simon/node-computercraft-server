@@ -78,7 +78,7 @@ return function(compWindow)
         print("All set!")
     end)
 
-    sleep(3)
+    sleep(1)
 
     term.clear()
     term.setCursorPos(1, 1)

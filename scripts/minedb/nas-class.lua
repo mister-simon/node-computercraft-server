@@ -109,13 +109,15 @@ function Nas:parallelList(inventories)
     local items = {}
 
     arr.parallelEach(inventories, function(inv)
-        arr.parallelEach(inv.list(), function(item, slot)
-            if not items[item.name] then
-                items[item.name] = itemCollection()
-            end
+        print("Hello") -- Why this not working? Hmmm?
 
-            items[item.name].addItem(inv, item, slot)
-        end)
+        -- arr.parallelEach(inv.list(), function(item, slot)
+        --     if not items[item.name] then
+        --         items[item.name] = itemCollection()
+        --     end
+
+        --     items[item.name].addItem(inv, item, slot)
+        -- end)
     end)
 
     return items
