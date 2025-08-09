@@ -3,7 +3,7 @@ local say = require("/scripts/simnet/say")("left")
 local dispenser = peripheral.wrap("top")
 
 local function snowIsPlaced()
-    return textutils.serialise(dispenser.list()):find("snow") ~= nil
+    return textutils.serialise(dispenser.list()):find("snow") == nil
 end
 
 local function snow()
