@@ -1,4 +1,10 @@
-local say = require("/scripts/simnet/say")
+local say = require("/scripts/simnet/say")("left")
+
+local dispenser = peripheral.wrap("top")
+
+local function snowIsPlaced()
+    return textutils.serialise(dispenser.list()):find("snow") ~= nil
+end
 
 local function snow()
     redstone.setOutput("top", true)
@@ -6,12 +12,26 @@ local function snow()
     redstone.setOutput("top", false)
 end
 
-local function main()
-    snow()
-    sleep(30)
+local function collectSnow()
+    if snowIsPlaced() then
+        snow()
+    end
+end
 
+local function placeSnow()
+    if not snowIsPlaced() then
+        snow()
+    end
+end
+
+local function main()
+    placeSnow()
+    say("Stay frosty...")
+    sleep(30)
     while turtle.attack() do end
-    snow()
+
+    say("Ice to meet you")
+    collectSnow()
 
     sleep(40)
 
