@@ -82,13 +82,17 @@ function Button:hide()
     self.visibilityWasSet = true
 end
 
+function Button:hitTest(x, y)
+    local hitX = x >= self.x and x < self.x + self.w
+    local hitY = y >= self.y and y < self.y + self.h
+    return hitX and hitY
+end
+
 function Button:listen()
     local event, button, x, y
     repeat
         event, button, x, y = os.pullEvent("mouse_click")
-        local hitX = x >= self.x and x < self.x + self.w
-        local hitY = y >= self.y and y < self.y + self.h
-    until hitX and hitY
+    until self:hitTest(x, y)
 
     return self, event, button, x, y
 end
