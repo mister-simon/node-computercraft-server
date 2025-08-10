@@ -28,7 +28,10 @@ local function main()
     placeSnow()
     say("Stay frosty...")
     sleep(30)
-    while turtle.attack() do end
+
+    while turtle.attack() do
+        turtle.drop()
+    end
 
     say("Ice to meet you")
     collectSnow()
