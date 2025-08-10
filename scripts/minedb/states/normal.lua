@@ -1,4 +1,5 @@
 local ensureWidth = require "cc.strings".ensure_width
+local pp = require "cc.pretty".pretty_print
 local arr = require("/scripts/api/arr")
 local Button = require("/scripts/api/button")
 local toWindow = require("/scripts/api/window").toWindow
@@ -42,7 +43,7 @@ local function createUiFor(output)
     }
 end
 
-local function createBtn(text, action, bg, fg)
+local function createBtn(text, x, y, bg, fg)
     bg = bg or colours.green
     fg = fg or colours.white
 
@@ -52,15 +53,12 @@ local function createBtn(text, action, bg, fg)
     btn:setSize(w, 1)
     btn:setBg(bg)
     btn:setFg(fg)
+    btn:setPos(x, y)
 
-    return {
-        btn = btn,
-        action = action,
-        w = w
-    }
+    return btn
 end
 
---- @class NormalState
+--- @class Normal2State
 --- @field nas Nas
 --- @field ui table
 local state = {}
@@ -68,22 +66,27 @@ state.__index = state
 
 --- @param nas Nas
 function state.new(nas, windows)
-    local preferredOutput = windows.comp
-
-    if windows.mon then
-        preferredOutput = windows.mon
-    end
-
     local instance = {
         nas = nas,
-        ui = createUiFor(preferredOutput),
-        usingMonitor = preferredOutput ~= windows.comp,
+        windows = windows,
+        ui = createUiFor(windows.comp),
         items = nil,
         search = nil,
         listOffset = 0,
+        itemButtons = {}
     }
 
     return setmetatable(instance, state)
+end
+
+function state:loadNas()
+    local items = arr.values(self.nas:list())
+
+    table.sort(items, function(a, b)
+        return a.getCount() >= b.getCount()
+    end)
+
+    self.items = items
 end
 
 function state:updateTop()
@@ -97,88 +100,49 @@ end
 function state:updateLeft(states)
     toWindow(self.ui.left)(function()
         local lw, lh = term.getSize()
-        local indexW = 4
-        local actionsW = 11
+        local indexW = 3
+        local actionsW = 2
         local detailW = lw - indexW - actionsW
 
-        term.clear()
-        term.setCursorPos(1, 1)
-
-        print("Loading...")
-
-        local items = arr.values(self.nas:list())
-
-        table.sort(items, function(a, b)
-            return a.getCount() >= b.getCount()
-        end)
+        self.itemButtons = {}
 
         term.clear()
         term.setCursorPos(1, 1)
-
-        self.leftBtns = {}
 
         for i = 1, lh do
             local itemIndex = i + self.listOffset
-            local collection = items[itemIndex]
+            local collection = self.items[itemIndex]
 
             term.setCursorPos(1, i)
 
-            if (i % 2) == 0 then
-                term.setBackgroundColour(colours.grey)
-            else
-                term.setBackgroundColour(colours.black)
-            end
+            term.setBackgroundColour(colours.black)
+            term.setTextColour(colours.grey)
 
             if collection then
-                write(ensureWidth(i .. "-", indexW))
-                write(ensureWidth(collection.displayName(), detailW))
+                write(ensureWidth(tostring(itemIndex), indexW))
 
-                local one = createBtn("1", function()
-                    states.pushing:queue({
-                        quantity = 1,
-                        name = collection.name()
-                    })
-                    self:updateRight()
-                    self.ui.scene.redraw()
+                if (itemIndex % 2) == 0 then
+                    term.setBackgroundColour(colours.grey)
+                else
+                    term.setBackgroundColour(colours.black)
+                end
 
-                    return true
-                end)
+                term.setTextColour(colours.white)
+                write(ensureWidth(" " .. collection.displayName(), detailW))
 
-                one.btn:setPos(indexW + detailW, i)
+                local minus = createBtn("-", indexW + detailW, i)
+                local plus = createBtn("+", indexW + detailW + 1, i)
 
-                local stack = createBtn("64", function()
-                    states.pushing:queue({
-                        quantity = 64,
-                        name = collection.name()
-                    })
-                    self:updateRight()
-                    self.ui.scene.redraw()
-
-                    return true
-                end)
-                stack.btn:setPos(indexW + detailW + 2, i)
-
-                local all = createBtn("ALL", function()
-                    states.pushing:queue({
-                        quantity = collection.getCount(),
-                        name = collection.name()
-                    })
-                    self:updateRight()
-                    self.ui.scene.redraw()
-
-                    return true
-                end)
-                all.btn:setPos(indexW + detailW + 3, i)
-
-                self.leftBtns = {
-                    one, stack, all
-                }
-
-                one.btn:render()
-                stack.btn:render()
-                all.btn:render()
+                table.insert(self.itemButtons, { btn = minus, quantity = -1, collection = collection })
+                table.insert(self.itemButtons, { btn = plus, quantity = 1, collection = collection })
             end
+
+            term.setBackgroundColour(colours.black)
         end
+
+        arr.each(self.itemButtons, function(item)
+            item.btn:render()
+        end)
     end);
 end
 
@@ -187,13 +151,72 @@ function state:updateRight(states)
         term.clear()
         term.setCursorPos(1, 1)
 
+        print("Push Queue:")
         arr.each(states.pushing:getQueue(), function(job, i)
-            print(i)
+            pp(job)
         end)
     end)
 end
 
+function state:handleClick(states, name, button, x, y)
+    local btn = arr.find(self.itemButtons, function(item)
+        if item.btn:hitTest(x, y) then
+            return true
+        end
+        return false
+    end)
+
+    if btn then
+        states.pushing:queue({
+            quantity = btn.quantity,
+            name = btn.collection.name()
+        })
+        self:updateRight(states)
+    end
+
+    return false
+end
+
+function state:handleScroll(states, name, direction, x, y)
+    local btn = arr.find(self.itemButtons, function(item)
+        if item.btn:hitTest(x, y) then
+            return true
+        end
+        return false
+    end)
+
+    if btn then
+        states.pushing:queue({
+            quantity = direction * -1,
+            name = btn.collection.name()
+        })
+        self:updateRight(states)
+
+        return false
+    end
+
+    self.listOffset = self.listOffset + direction
+    self:updateLeft()
+    self.ui.scene.redraw()
+
+    return false
+end
+
+function state:handleTouch(states, name, side, direction, x, y)
+    --
+    return false
+end
+
 function state:run(states)
+    self.windows.toBoth(function()
+        term.clear()
+        term.setCursorPos(1, 1)
+
+        print("Loading...")
+    end)
+
+    self:loadNas()
+
     self.ui.scene.setVisible(true)
 
     self:updateTop()
@@ -202,25 +225,25 @@ function state:run(states)
 
     self.ui.scene.redraw()
 
+    local nextScene
+
     repeat
-        local continue = true
+        local continue = false
+        nextScene = states.normal
 
-        parallel.waitForAny(
-            table.unpack(arr.map(self.leftBtns, function(item)
-                return function()
-                    local btn = item["btn"]
-                    local action = item["action"]
-
-                    btn:listen(self.usingMonitor)
-                    self.ui.left.write("Hello")
-
-                    continue = action()
-                end
-            end))
+        parallel.waitForAny(function()
+                continue, nextScene = self:handleClick(states, os.pullEvent("mouse_click"))
+            end,
+            function()
+                continue, nextScene = self:handleScroll(states, os.pullEvent("mouse_scroll"))
+            end,
+            function()
+                continue, nextScene = self:handleTouch(states, os.pullEvent("monitor_touch"))
+            end
         )
-    until not continue
+    until continue ~= false
 
-    return states.normal
+    return nextScene or states.normal
 end
 
 return state

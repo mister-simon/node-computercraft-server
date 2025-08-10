@@ -41,11 +41,11 @@ function state.new(nas, windows)
     return setmetatable(instance, state)
 end
 
-function state:queue(...)
-    table.insert(self._queue, { ... })
+function state:queue(item)
+    table.insert(self._queue, item)
 end
 
-function state:getQueue(...)
+function state:getQueue()
     return self._queue
 end
 
