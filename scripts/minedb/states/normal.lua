@@ -1,6 +1,7 @@
 local ensureWidth = require "cc.strings".ensure_width
 local pp = require "cc.pretty".pretty_print
 local arr = require("/scripts/api/arr")
+local number = require("/scripts/api/number")
 local Button = require("/scripts/api/button")
 local toWindow = require("/scripts/api/window").toWindow
 
@@ -83,6 +84,10 @@ function state:loadNas()
     local items = arr.values(self.nas:list())
 
     table.sort(items, function(a, b)
+        if a.getCount() == b.getCount() then
+            return a.displayName() < b.displayName()
+        end
+
         return a.getCount() >= b.getCount()
     end)
 
@@ -128,7 +133,8 @@ function state:updateLeft(states)
                 end
 
                 term.setTextColour(colours.white)
-                write(ensureWidth(" " .. collection.displayName(), detailW))
+                write(ensureWidth(number.toShortString(collection.getCount()), 4))
+                write(ensureWidth(" " .. collection.displayName(), detailW - 4))
 
                 local minus = createBtn("-", indexW + detailW, i)
                 local plus = createBtn("+", indexW + detailW + 1, i)
@@ -195,9 +201,14 @@ function state:handleScroll(states, name, direction, x, y)
         return false
     end
 
-    self.listOffset = self.listOffset + direction
+    local w, h = self.ui.left.getSize()
+
+    self.listOffset = math.min(
+        arr.count(self.items) - h,
+        math.max(0, self.listOffset + direction)
+    )
+
     self:updateLeft()
-    self.ui.scene.redraw()
 
     return false
 end
