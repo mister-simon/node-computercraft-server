@@ -1,7 +1,3 @@
-local NAS = require("/scripts/minedb/nas")
-local arr = require("/scripts/api/arr")
-local ls = require("/scripts/api/localstorage")
-
 -- Pulling
 -- -- Run something like the "+stow" script.
 -- -- If we run out of space, then throw out a big scary error.
@@ -39,8 +35,13 @@ function state.new(nas, windows)
     return setmetatable(instance, state)
 end
 
-function state:run(states)
-    return states.normal
+function state:init(states)
+    self.states = states
+    return self
+end
+
+function state:run()
+    return self.states.normal
 end
 
 return state

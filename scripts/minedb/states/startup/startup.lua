@@ -2,6 +2,7 @@ local NAS = require("/scripts/minedb/nas")
 local arr = require("/scripts/api/arr")
 local ls = require("/scripts/api/localstorage")
 local toWindow = require("/scripts/api/window").toWindow
+local pp = require "cc.pretty".pretty_print
 
 return function(compWindow)
     local monitorWindow
@@ -12,6 +13,23 @@ return function(compWindow)
     local toBoth = function(fn)
         toComp(fn)
         toMon(fn)
+    end
+
+    local toDebug = function(fn) end
+
+    -- Find a debug monitor on a direct side
+    local debugMon = arr.find(
+        { peripheral.find('monitor') },
+        function(mon)
+            local name = peripheral.getName(mon)
+            return arr.find(redstone.getSides(), function(side)
+                return name == side
+            end)
+        end
+    )
+
+    if debugMon then
+        toDebug = toWindow(debugMon)
     end
 
     -- Select a monitor as the "main" window?
@@ -43,12 +61,11 @@ return function(compWindow)
         term.setCursorPos(1, 1)
 
         -- Draw a logo :)
-        local logo = assert(paintutils.loadImage("/scripts/minedb/states/minedb.nfp"));
+        local logo = assert(paintutils.loadImage("/scripts/minedb/states/startup/minedb.nfp"));
         paintutils.drawImage(logo, 2, 2)
         term.setBackgroundColour(colours.black)
         print("\n")
     end)
-
 
     -- Create a terminal region below the logo
     local tw, th = term.getSize()
@@ -75,13 +92,8 @@ return function(compWindow)
 
     toBoth(function()
         -- Hooray
-        print("All set!")
+        print("Starting...")
     end)
-
-    sleep(1)
-
-    term.clear()
-    term.setCursorPos(1, 1)
 
     local windows = {
         comp = compWindow,
@@ -89,6 +101,9 @@ return function(compWindow)
         toComp = toComp,
         toMon = toMon,
         toBoth = toBoth,
+
+        debugMon = debugMon,
+        toDebug = toDebug,
     }
 
     return nas, windows

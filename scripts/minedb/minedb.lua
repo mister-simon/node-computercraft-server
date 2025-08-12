@@ -1,9 +1,10 @@
 local pp = require("cc.pretty").pretty_print
 
-local startup = require("/scripts/minedb/states/startup")
-local normal = require("/scripts/minedb/states/normal")
-local pulling = require("/scripts/minedb/states/pulling")
-local pushing = require("/scripts/minedb/states/pushing")
+local arr = require("/scripts/api/arr")
+local startup = require("/scripts/minedb/states/startup/startup")
+local normal = require("/scripts/minedb/states/normal/normal")
+local pulling = require("/scripts/minedb/states/pulling/pulling")
+local pushing = require("/scripts/minedb/states/pushing/pushing")
 
 local function main()
     local compWindow = term.current()
@@ -17,11 +18,24 @@ local function main()
         pushing = pushing.new(nas, windows),
     }
 
-    local state = states.normal
+    parallel.waitForAll(function()
+        states.normal:init(states)
+    end, function()
+        states.pulling:init(states)
+    end, function()
+        states.pushing:init(states)
+    end)
+
+    -- Init done. Clear the startup screen and begin.
+    windows.toBoth(function()
+        term.clear()
+        term.setCursorPos(1, 1)
+    end)
 
     -- Run those states
+    local state = states.normal
     repeat
-        state = state:run(states)
+        state = state:run()
     until not state
 
     windows.toBoth(function()

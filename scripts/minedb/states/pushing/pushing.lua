@@ -1,7 +1,3 @@
-local NAS = require("/scripts/minedb/nas")
-local arr = require("/scripts/api/arr")
-local ls = require("/scripts/api/localstorage")
-
 -- Pushing
 -- -- Consume the internal queue until there is no space left to output into.
 -- -- If the queue fails then prompt the user to continue or cancel.
@@ -41,6 +37,11 @@ function state.new(nas, windows)
     return setmetatable(instance, state)
 end
 
+function state:init(states)
+    self.states = states
+    return self
+end
+
 function state:queue(item)
     table.insert(self._queue, item)
 end
@@ -50,7 +51,7 @@ function state:getQueue()
 end
 
 function state:run(states)
-    return states.normal
+    return self.states.normal
 end
 
 return state
