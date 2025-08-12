@@ -1,3 +1,4 @@
+-- local pp = require "cc.pretty".pretty_print
 local arr = require("/scripts/api/arr")
 local gen = require("/scripts/api/generator")
 local itemCollection = require("/scripts/minedb/item-collection")
@@ -89,36 +90,23 @@ end
 
 function Nas:list(inventories)
     inventories = inventories or self:getStorage()
+
+    local todo = {}
     local items = {}
 
-    arr.each(inventories, function(inv)
-        arr.each(inv.list(), function(item, slot)
-            if not items[item.name] then
-                items[item.name] = itemCollection()
-            end
+    for i, inv in pairs(inventories) do
+        table.insert(todo, function()
+            arr.each(inv.list(), function(item, slot)
+                if not items[item.name] then
+                    items[item.name] = itemCollection()
+                end
 
-            items[item.name].addItem(inv, item, slot)
+                items[item.name].addItem(inv, item, slot)
+            end)
         end)
-    end)
+    end
 
-    return items
-end
-
-function Nas:parallelList(inventories)
-    inventories = inventories or self:getStorage()
-    local items = {}
-
-    arr.parallelEach(inventories, function(inv)
-        print("Hello") -- Why this not working? Hmmm?
-
-        -- arr.parallelEach(inv.list(), function(item, slot)
-        --     if not items[item.name] then
-        --         items[item.name] = itemCollection()
-        --     end
-
-        --     items[item.name].addItem(inv, item, slot)
-        -- end)
-    end)
+    parallel.waitForAll(table.unpack(todo))
 
     return items
 end
