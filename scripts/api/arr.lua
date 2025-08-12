@@ -40,36 +40,6 @@ local function map(arr, callback)
     return out
 end
 
--- Map... But parall-ly
-local function parallelMap(arr, callback)
-    local out = {}
-
-    parallel.waitForAll(
-        table.unpack(
-            map(arr, function(item, i)
-                return function()
-                    insert(out, i, callback(item, i))
-                end
-            end)
-        )
-    )
-
-    return out
-end
-
--- Run a callback across a table parallelly
-local function parallelEach(arr, callback)
-    local todo = map(arr, function(item, i)
-        return function()
-            callback(item, i)
-        end
-    end)
-
-    parallel.waitForAll(
-        table.unpack(todo)
-    )
-end
-
 -- Create a new table from a table, stripping existing indexes
 local function values(arr)
     local out = {}
@@ -127,9 +97,7 @@ end
 return {
     insert = insert,
     each = each,
-    parallelEach = parallelEach,
     map = map,
-    parallelMap = parallelMap,
     values = values,
     filter = filter,
     reject = reject,
