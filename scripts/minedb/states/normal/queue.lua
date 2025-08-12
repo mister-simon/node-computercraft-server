@@ -33,7 +33,7 @@ function section:update()
 
         print("Push Queue:")
         arr.each(self:getQueue(), function(job, i)
-            print(job.collection.getName() .. ':' .. job.quantity)
+            print(job.collection.displayName() .. ':' .. job.quantity)
         end)
     end)
 end
@@ -43,12 +43,12 @@ function section:hitTest(x, y)
 end
 
 function section:handleClick(x, y, originalX, originalY)
-    toWindow(self.term)(function()
-        term.clear()
-        term.setCursorPos(1, 1)
-        print(x, y, originalX, originalY)
-        sleep(3)
-    end)
+    -- toWindow(self.term)(function()
+    --     term.clear()
+    --     term.setCursorPos(1, 1)
+    --     print(x, y, originalX, originalY)
+    --     sleep(3)
+    -- end)
 end
 
 return section

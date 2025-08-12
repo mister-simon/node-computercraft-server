@@ -17,6 +17,7 @@ function state.new(nas, windows)
         nas = nas,
         windows = windows,
         items = nil,
+        searchedItems = nil,
         ui = {},
     }
 
@@ -39,6 +40,7 @@ function state:init(states)
 
     -- Load the nas
     self:loadNas()
+    self:searchItems()
 
     return self
 end
@@ -57,16 +59,8 @@ function state:loadNas()
     self.items = items
 end
 
-function state:updateSearch()
-    self.searchSection:update()
-end
-
-function state:updateList()
-    self.listSection:update()
-end
-
-function state:updateQueue()
-    self.queueSection:update()
+function state:searchItems()
+    self.searchedItems = arr.values(self.searchSection:searchItems(self.items))
 end
 
 function state:getSections()
@@ -119,12 +113,36 @@ function state:handleKey(name, key, state)
     return false
 end
 
+function state:listen(continue, nextScene)
+    parallel.waitForAny(
+        function()
+            continue, nextScene = self:handleClick(os.pullEvent("mouse_click"))
+        end,
+        function()
+            continue, nextScene = self:handleScroll(os.pullEvent("mouse_scroll"))
+        end,
+        function()
+            local event, key = os.pullEvent("key")
+            continue, nextScene = self:handleKey(event, key, true)
+        end,
+        function()
+            local event, key = os.pullEvent("key_up")
+            continue, nextScene = self:handleKey(event, key, false)
+        end
+    )
+
+    return continue, nextScene
+end
+
 function state:run()
     self.scene.setVisible(true)
 
-    self:updateSearch()
-    self:updateList()
-    self:updateQueue()
+    arr.each(
+        self:getSections(),
+        function(section)
+            section:update()
+        end
+    )
 
     local nextScene
 
@@ -132,22 +150,11 @@ function state:run()
         local continue = false
         nextScene = self.states.normal
 
-        parallel.waitForAny(
-            function()
-                continue, nextScene = self:handleClick(os.pullEvent("mouse_click"))
-            end,
-            function()
-                continue, nextScene = self:handleScroll(os.pullEvent("mouse_scroll"))
-            end,
-            function()
-                local event, key = os.pullEvent("key")
-                continue, nextScene = self:handleKey(event, key, true)
-            end,
-            function()
-                local event, key = os.pullEvent("key_up")
-                continue, nextScene = self:handleKey(event, key, false)
-            end
-        )
+        if self.searchSection.hasFocus then
+            self.searchSection:readInput()
+        else
+            continue, nextScene = self:listen(continue, nextScene)
+        end
     until continue
 
     return nextScene or self.states.normal

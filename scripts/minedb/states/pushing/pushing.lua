@@ -43,7 +43,26 @@ function state:init(states)
 end
 
 function state:queue(item)
-    table.insert(self._queue, item)
+    local collection = item.collection
+    local name = collection.name()
+
+    if not self._queue[name] then
+        self._queue[name] = {
+            collection = collection,
+            quantity = 0
+        }
+    end
+
+    local current = self._queue[name].quantity
+
+    self._queue[name].quantity = math.min(
+        math.max(0, current + item.quantity),
+        collection.getCount()
+    )
+
+    if self._queue[name].quantity == 0 then
+        self._queue[name] = nil
+    end
 end
 
 function state:getQueue()

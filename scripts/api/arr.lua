@@ -51,6 +51,17 @@ local function values(arr)
     return out
 end
 
+-- Create a new table from an existing table's keys
+local function keys(arr)
+    local out = {}
+
+    each(arr, function(item, key)
+        table.insert(out, key)
+    end)
+
+    return out
+end
+
 -- Filter a table with a whitelisting callback
 local function filter(arr, callback)
     local out = {}
@@ -98,6 +109,7 @@ return {
     insert = insert,
     each = each,
     map = map,
+    keys = keys,
     values = values,
     filter = filter,
     reject = reject,

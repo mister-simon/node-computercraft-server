@@ -28,20 +28,18 @@ function section.new(parentState, scene)
 end
 
 function section:update()
-    toWindow(self.term)(function()
+    local function renderList(withButtons)
         local lw, lh = term.getSize()
         local indexW = 3
         local actionsW = 2
         local detailW = lw - indexW - actionsW
-
-        self.buttons = {}
 
         term.clear()
         term.setCursorPos(1, 1)
 
         for i = 1, lh do
             local itemIndex = i + self.offset
-            local collection = self.parentState.items[itemIndex]
+            local collection = self.parentState.searchedItems[itemIndex]
 
             term.setCursorPos(1, i)
 
@@ -61,20 +59,37 @@ function section:update()
                 write(ensureWidth(number.toShortString(collection.getCount()), 4))
                 write(ensureWidth(" " .. collection.displayName(), detailW - 4))
 
-                local minus = Button.make("-", indexW + detailW, i)
-                local plus = Button.make("+", indexW + detailW + 1, i)
+                if withButtons or false then
+                    local minus = Button.make("-", indexW + detailW, i)
+                    local plus = Button.make("+", indexW + detailW + 1, i)
 
-                table.insert(self.buttons, { btn = minus, quantity = -1, collection = collection })
-                table.insert(self.buttons, { btn = plus, quantity = 1, collection = collection })
+                    table.insert(self.buttons, { btn = minus, quantity = -1, collection = collection })
+                    table.insert(self.buttons, { btn = plus, quantity = 1, collection = collection })
+                end
             end
 
             term.setBackgroundColour(colours.black)
         end
+    end
 
+    self.buttons = {}
+
+    -- Render the whole list to the list area
+    toWindow(self.term)(function()
+        renderList(true)
         arr.each(self.buttons, function(item)
             item.btn:render()
         end)
     end);
+
+    -- Render the list again for a connected monitor, no buttons
+    self.parentState.windows.toMon(function()
+        renderList(false)
+    end);
+end
+
+function section:resetOffset()
+    self.offset = 0
 end
 
 function section:hitTest(x, y)
@@ -107,7 +122,7 @@ function section:handleClick(x, y, originalX, originalY)
     if btn then
         pushState:queue({
             quantity = self:getQueueQuantity(btn.quantity, btn.collection),
-            name = btn.collection.name()
+            collection = btn.collection
         })
         self.parentState.queueSection:update()
     end
@@ -136,7 +151,7 @@ function section:handleScroll(direction, x, y, originalX, originalY)
     local prevOffset = self.offset
 
     self.offset = math.min(
-        arr.count(self.parentState.items) - h,
+        math.max(0, arr.count(self.parentState.searchedItems) - h),
         math.max(0, self.offset + direction)
     )
 
