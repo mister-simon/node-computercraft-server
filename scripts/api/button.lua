@@ -23,6 +23,21 @@ function Button.new(parent)
     return setmetatable(instance, Button)
 end
 
+function Button.make(text, x, y, bg, fg, parent)
+    bg = bg or colours.green
+    fg = fg or colours.white
+
+    local btn = Button.new(parent)
+    local w = text:len()
+    btn:setText(text)
+    btn:setSize(w, 1)
+    btn:setBg(bg)
+    btn:setFg(fg)
+    btn:setPos(x, y)
+
+    return btn
+end
+
 function Button:setPos(x, y)
     self.x = x
     self.y = y
