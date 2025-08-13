@@ -22,7 +22,7 @@ function section.new(parentState, scene)
         parentWindow = scene,
         term = term,
         offset = 0,
-        pullBtn = Button.make("Pull", 1, h - 1, colours.green, colours.white, term),
+        pullBtn = Button.make("Get", 1, h - 1, colours.green, colours.white, term),
         clearBtn = Button.make("Clear", rw - math.floor(rw / 2), h - 1, colours.grey, colours.lightGrey, term),
     }
 
