@@ -50,6 +50,16 @@ function Button:setSize(w, h)
     self.window.reposition(self.x, self.y, self.w, self.h)
 end
 
+function Button:setWidth(w)
+    self.w = w
+    self.window.reposition(self.x, self.y, self.w, self.h)
+end
+
+function Button:setHeight(h)
+    self.h = h
+    self.window.reposition(self.x, self.y, self.w, self.h)
+end
+
 function Button:adopt(parent)
     self.parent = parent
     self.window.reposition(self.x, self.y, self.w, self.h, self.parent)
