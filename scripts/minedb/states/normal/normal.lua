@@ -100,10 +100,6 @@ function state:handleScroll(name, direction, x, y)
 end
 
 function state:handleKey(name, key, state)
-    self.windows.toDebug(function()
-        print(key)
-    end)
-
     arr.each(self:getSections(), function(section)
         if section["handleKey"] then
             section:handleKey(key, state)

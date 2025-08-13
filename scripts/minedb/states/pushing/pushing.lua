@@ -42,6 +42,10 @@ function state:init(states)
     return self
 end
 
+function state:clearQueue()
+    self._queue = {}
+end
+
 function state:queue(item)
     local collection = item.collection
     local name = collection.name()
@@ -70,6 +74,10 @@ function state:getQueue()
 end
 
 function state:run(states)
+    print("HELLOOOOO")
+
+    sleep(3)
+
     return self.states.normal
 end
 
