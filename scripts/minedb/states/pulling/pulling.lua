@@ -4,6 +4,7 @@ local arr = require("/scripts/api/arr")
 local number = require("/scripts/api/number")
 local Button = require("/scripts/api/button")
 local stow = require("/scripts/minedb/states/pulling/stow")
+local pp = require "cc.pretty".pretty_print
 
 -- Pulling
 -- -- Run something like the "+stow" script.
@@ -40,9 +41,10 @@ function state:run()
     self.scene.setVisible(true)
     toWindow(self.scene)(function()
         term.clear()
-        parallel.waitForAll(function()
-            stow(self.nas)
-        end)
+        term.setCursorPos(1, 1)
+        stow(self.nas)
+
+        sleep(1)
     end)
 
     return self.states.normal

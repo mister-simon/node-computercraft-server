@@ -27,8 +27,11 @@ local function pushToCollection(input, slot, toMove, max, collection)
     return toMove
 end
 
-local function pushToStorage(emptyIterator, input, slot, toMove)
-    local inv, targetSlot = emptyIterator()
+local function pushToStorage(inv, targetSlot, input, slot, toMove)
+    if type(inv) == "string" then
+        print(inv, targetSlot)
+        sleep(3)
+    end
 
     if not inv then
         return toMove
@@ -46,51 +49,62 @@ local function pushToStorage(emptyIterator, input, slot, toMove)
     return toMove, inv, targetSlot
 end
 
-local function stow(nas)
-    local input = nas:getInput()
-    local failures = 0
+local function compressInput(nas)
+    print("-- Compressing Input --")
 
-    repeat
-        if failures ~= 0 then
-            print("!== Retry attempts " .. failures .. " ==!")
-        end
+    local inputItems = nas:listInput()
 
-        -- Compress input
-        local inputItems = nas:listInput()
-        print("-- Compressing Input --")
-        arr.each(inputItems, function(collection)
-            term.clearLine()
-            local x, y = term.getCursorPos()
-            term.setCursorPos(1, y)
-            write(collection.displayName())
-            collection.compress()
-        end)
-        print()
+    arr.each(inputItems, function(collection)
+        term.clearLine()
+        local x, y = term.getCursorPos()
+        term.setCursorPos(1, y)
+        write(collection.displayName())
+        collection.compress()
+    end)
 
-        -- Compress all
-        local items = nas:list()
+    term.clearLine()
+    local x, y = term.getCursorPos()
+    term.setCursorPos(1, y)
+    print("Done")
+end
 
-        print("-- Compressing Storage --")
-        arr.each(items, function(collection)
-            term.clearLine()
-            local x, y = term.getCursorPos()
-            term.setCursorPos(1, y)
-            write(collection.displayName())
-            collection.compress()
-        end)
-        print()
+local function compressStorage(nas)
+    print("-- Compressing Storage --")
 
-        -- Get a new list ready to work with
-        local items = nas:list()
-        local inputList = input.list()
+    local items = nas:list()
 
-        local emptyIterator = nas:listEmpty()
+    arr.each(items, function(collection)
+        term.clearLine()
+        local x, y = term.getCursorPos()
+        term.setCursorPos(1, y)
+        write(collection.displayName())
+        collection.compress()
+    end)
 
-        local failuresWasIncremented = false
+    print()
+end
 
-        print("-- Storing Input --")
+local function storeStuff(nas, input, failures, failuresWasIncremented)
+    print("-- Storing Input --")
 
-        for slot, item in pairs(input.list()) do
+    local inputList = input.list()
+
+    if arr.count(inputList) == 0 then
+        print("Nothing to store :o")
+        return failures, failuresWasIncremented
+    end
+
+    print("Getting fresh storage list...")
+    local items = nas:list()
+
+    print("Finding empty slots...")
+    local emptyIterator = nas:iterateEmpty()
+
+    print("Preparing moves...")
+    local todo = {}
+
+    for slot, item in pairs(inputList) do
+        table.insert(todo, function()
             local collection = items[item.name]
             local toMove = item.count
 
@@ -105,7 +119,8 @@ local function stow(nas)
 
             if toMove ~= 0 then
                 print("Pushing the rest to empty space " .. displayName .. " " .. toMove)
-                toMove = pushToStorage(emptyIterator, input, slot, toMove)
+                local emptyInv, emptySlot = emptyIterator()
+                toMove = pushToStorage(emptyInv, emptySlot, input, slot, toMove)
             end
 
             if toMove ~= 0 and not failuresWasIncremented then
@@ -113,9 +128,36 @@ local function stow(nas)
                 failures = failures + 1
                 failuresWasIncremented = true
             end
+        end)
+    end
+
+    parallel.waitForAll(table.unpack(todo))
+
+    print("Nice")
+
+    return failures, failuresWasIncremented
+end
+
+local function stow(nas)
+    local input = nas:getInput()
+    local failures = 0
+
+    repeat
+        if failures ~= 0 then
+            print("!== Retry attempts " .. failures .. " ==!")
         end
-        term.scroll(2)
-    until arr.count(inputList) == 0 or failures == 3
+
+        -- Compress input
+        compressInput(nas)
+
+        -- Commenting this out for the moment...
+        -- This should only be necessary if we're manually adding stuff to the storage:
+        -- compressStorage(nas)
+
+        -- Store the stuff
+        local failuresWasIncremented = false
+        failures, failuresWasIncremented = storeStuff(nas, input, failures, failuresWasIncremented)
+    until arr.count(input.list()) == 0 or failures == 3
 
     if failures == 3 then
         print("Well damn - couldn't stow the input. Whatever it is. Chuck it in the bin.")
