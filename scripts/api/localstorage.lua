@@ -52,33 +52,51 @@ function pop(tableName)
 end
 
 function ensure(tableName, key, suggestions)
+	-- Setup
 	local reader = io.read
+	local validate = function(value)
+		return true
+	end
 
 	if suggestions then
-		reader = function()
-			local out = read(nil, nil, function(text) return completion.choice(text, suggestions) end)
+		validate = function(value)
+			if not value then return false end
 
-			-- Ensure the suggestion matches an option
-			local matches = arr.some(suggestions, function(option)
-				return option == out
+			return arr.some(suggestions, function(option)
+				return option == value
 			end)
+		end
 
-			if not matches then
-				out = ''
-			end
-
-			return out
+		reader = function()
+			return read(
+				nil,
+				nil,
+				function(text)
+					return completion.choice(text, suggestions)
+				end
+			)
 		end
 	end
 
+	-- Get current value + validate it
+	local out = get(tableName, key)
+
+	if not validate(out) then
+		out = nil
+		set(tableName, key, nil)
+	end
+
+	-- Update current value until a valid option is chosen
 	while not get(tableName, key) do
 		write("Set " .. key .. ": ")
-		local val = reader()
-		if val ~= '' then
-			set(tableName, key, val)
+		out = reader()
+
+		if validate(out) then
+			set(tableName, key, out)
 		end
 	end
-	return get(tableName, key)
+
+	return out
 end
 
 return {
