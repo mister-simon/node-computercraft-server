@@ -119,21 +119,40 @@ function Nas:listOutput()
     return self:list({ [0] = self:getOutput() })
 end
 
-function Nas:listEmpty()
-    local storage = self:getStorage()
+function Nas:iterateEmpty()
+    local empties = self:listEmpty()
 
     return gen.create(function(yield, exec)
-        arr.each(storage, function(inv)
-            local size = exec(inv.size);
-            local list = exec(inv.list);
+        arr.each(empties, function(set)
+            local inv = set[1]
+            local slot = set[2]
+            yield(inv, slot)
+        end)
+    end)
+end
+
+function Nas:listEmpty()
+    local inventories = self:getStorage()
+
+    local todo = {}
+    local empties = {}
+
+    for i, inv in pairs(inventories) do
+        table.insert(todo, function()
+            local list = inv.list()
+            local size = inv.size()
 
             for slot = 1, size do
                 if not list[slot] then
-                    yield(inv, slot)
+                    table.insert(empties, { inv, slot })
                 end
             end
         end)
-    end)
+    end
+
+    parallel.waitForAll(table.unpack(todo))
+
+    return empties
 end
 
 return Nas
