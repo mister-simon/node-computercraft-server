@@ -85,7 +85,11 @@ return function(compWindow)
         nas = NAS.new(ls.ensure("minedb", "side", modemSides))
 
         -- Prompt for or retrieve from settings the io chest
-        local input = ls.ensure("minedb", "input", nas.remotes)
+        local invs = arr.map(nas:getInventories(), function(inv)
+            return peripheral.getName(inv)
+        end)
+        local input = ls.ensure("minedb", "input", invs)
+
         nas:setInputName(input)
         nas:setOutputName(input)
     end)
