@@ -17,8 +17,7 @@ function state.new(nas, windows)
         nas = nas,
         windows = windows,
         items = nil,
-        searchedItems = nil,
-        ui = {},
+        searchedItems = nil
     }
 
     return setmetatable(instance, state)
@@ -61,6 +60,18 @@ end
 
 function state:searchItems()
     self.searchedItems = arr.values(self.searchSection:searchItems(self.items))
+end
+
+function state:refresh()
+    parallel.waitForAll(function()
+        self:loadNas()
+        self:searchItems()
+    end, function()
+        self.listSection:refresh()
+    end)
+
+    self.listSection.refreshing = false
+    return true
 end
 
 function state:getSections()
@@ -144,10 +155,13 @@ function state:run()
 
     repeat
         local continue = false
-        nextScene = self.states.normal
 
         if self.searchSection.hasFocus then
             self.searchSection:readInput()
+            continue = true
+        elseif self.listSection.refreshing then
+            self:refresh()
+            continue = true
         else
             continue, nextScene = self:listen(continue, nextScene)
         end

@@ -22,11 +22,11 @@ function section.new(parentState, scene)
         parentWindow = scene,
         term = term,
         offset = 0,
-        pullBtn = Button.make("Get", 1, h - 1, colours.green, colours.white, term),
+        pushBtn = Button.make("Get", 1, h - 1, colours.green, colours.white, term),
         clearBtn = Button.make("Clear", rw - math.floor(rw / 2), h - 1, colours.grey, colours.lightGrey, term),
     }
 
-    instance.pullBtn:setWidth(math.floor(rw / 2))
+    instance.pushBtn:setWidth(math.floor(rw / 2))
     instance.clearBtn:setWidth(rw - math.floor(rw / 2))
 
     instance._hitTest = hitTest(instance.term)
@@ -79,7 +79,7 @@ function section:update()
             term.setBackgroundColour(colours.black)
         end
 
-        self.pullBtn:render()
+        self.pushBtn:render()
         self.clearBtn:render()
     end)
 end
@@ -89,7 +89,7 @@ function section:hitTest(x, y)
 end
 
 function section:handleClick(x, y, originalX, originalY)
-    if self.pullBtn:hitTest(x, y) then
+    if self.pushBtn:hitTest(x, y) then
         return true, self.parentState.states.pushing
     end
 
@@ -102,10 +102,9 @@ function section:handleClick(x, y, originalX, originalY)
 
         repeat
             self.term.scroll(-1 * i)
-            self.pullBtn:render()
+            self.pushBtn:render()
             self.clearBtn:render()
             i = i + i
-            self.parentState.windows.toDebug(function() print(i) end)
             sleep(0.01)
         until i >= h
 

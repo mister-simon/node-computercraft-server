@@ -13,16 +13,26 @@ function section.new(parentState, scene)
 
     local lw = math.floor((w / 3) * 2)
 
+    local term = window.create(scene, 1, 2, lw, h - 1)
+
     local instance = {
         parentState = parentState,
         parentWindow = scene,
-        term = window.create(scene, 1, 2, lw, h - 1),
+        term = term,
         queueStack = false,
         queueAll = false,
         offset = 0,
         buttons = {},
+        pullBtn = Button.make("Stow Input", 1, h - 1, colours.green, colours.white, term),
+        refreshBtn = Button.make("Refresh", 1, h - 1, colours.grey, colours.lightGrey, term),
+        refreshing = false,
     }
     instance._hitTest = hitTest(instance.term)
+
+    instance.pullBtn:setWidth(instance.pullBtn.w + 2)
+
+    instance.refreshBtn:setWidth(instance.refreshBtn.w + 2)
+    instance.refreshBtn:setX(lw - instance.refreshBtn.w)
 
     return setmetatable(instance, section)
 end
@@ -30,9 +40,15 @@ end
 function section:update()
     local function renderList(withButtons)
         local lw, lh = term.getSize()
-        local indexW = 3
+        lh = lh - 1
+
+        local indexW = 0
         local actionsW = 2
-        local detailW = lw - indexW - actionsW
+        local detailW = lw - indexW
+
+        if withButtons then
+            detailW = detailW - actionsW
+        end
 
         term.clear()
         term.setCursorPos(1, 1)
@@ -70,6 +86,11 @@ function section:update()
 
             term.setBackgroundColour(colours.black)
         end
+
+        if withButtons or false then
+            self.pullBtn:render()
+            self.refreshBtn:render()
+        end
     end
 
     self.buttons = {}
@@ -86,6 +107,24 @@ function section:update()
     self.parentState.windows.toMon(function()
         renderList(false)
     end);
+end
+
+function section:refresh()
+    toWindow(self.term)(function()
+        -- Cute lil animation... Why not.
+        local w, h = term.getSize()
+        local i = 1
+
+        repeat
+            term.scroll(-1)
+
+            term.setCursorPos(math.floor(w / 2) - 5, 1)
+            term.write('Loading...')
+
+            i = i + 1
+            sleep(0.01)
+        until i > h
+    end)
 end
 
 function section:resetOffset()
@@ -125,6 +164,18 @@ function section:handleClick(x, y, originalX, originalY)
             collection = btn.collection
         })
         self.parentState.queueSection:update()
+
+        return false
+    end
+
+    if self.pullBtn:hitTest(x, y) then
+        return true, self.parentState.states.pulling
+    end
+
+    if self.refreshBtn:hitTest(x, y) then
+        self.refreshing = true
+
+        return true
     end
 
     return false

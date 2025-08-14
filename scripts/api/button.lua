@@ -41,27 +41,41 @@ end
 function Button:setPos(x, y)
     self.x = x
     self.y = y
-    self.window.reposition(self.x, self.y)
+    self:reposition()
+end
+
+function Button:setX(x)
+    self.x = x
+    self:reposition()
+end
+
+function Button:setY(x)
+    self.y = y
+    self:reposition()
 end
 
 function Button:setSize(w, h)
     self.w = w
     self.h = h
-    self.window.reposition(self.x, self.y, self.w, self.h)
+    self:reposition()
 end
 
 function Button:setWidth(w)
     self.w = w
-    self.window.reposition(self.x, self.y, self.w, self.h)
+    self:reposition()
 end
 
 function Button:setHeight(h)
     self.h = h
-    self.window.reposition(self.x, self.y, self.w, self.h)
+    self:reposition()
 end
 
 function Button:adopt(parent)
     self.parent = parent
+    self:reposition()
+end
+
+function Button:reposition()
     self.window.reposition(self.x, self.y, self.w, self.h, self.parent)
 end
 
