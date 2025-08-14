@@ -112,11 +112,11 @@ function Nas:list(inventories)
 end
 
 function Nas:listInput()
-    return self.list({ [0] = self:getInput() })
+    return self:list({ [0] = self:getInput() })
 end
 
 function Nas:listOutput()
-    return self.list({ [0] = self:getOutput() })
+    return self:list({ [0] = self:getOutput() })
 end
 
 function Nas:listEmpty()
