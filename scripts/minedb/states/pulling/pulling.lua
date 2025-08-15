@@ -1,10 +1,5 @@
 local toWindow = require("/scripts/api/window").toWindow
-local ensureWidth = require "cc.strings".ensure_width
-local arr = require("/scripts/api/arr")
-local number = require("/scripts/api/number")
-local Button = require("/scripts/api/button")
 local stow = require("/scripts/minedb/states/pulling/stow")
-local pp = require "cc.pretty".pretty_print
 
 -- Pulling
 -- -- Run something like the "+stow" script.
@@ -44,7 +39,9 @@ function state:run()
         term.setCursorPos(1, 1)
         stow(self.nas)
 
-        sleep(1)
+        print("--- SWEET ---")
+        print("RELOADIN...")
+        self.states.normal:refreshSilently()
     end)
 
     return self.states.normal

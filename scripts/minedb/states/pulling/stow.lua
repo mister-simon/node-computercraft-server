@@ -28,11 +28,6 @@ local function pushToCollection(input, slot, toMove, max, collection)
 end
 
 local function pushToStorage(inv, targetSlot, input, slot, toMove)
-    if type(inv) == "string" then
-        print(inv, targetSlot)
-        sleep(3)
-    end
-
     if not inv then
         return toMove
     end
@@ -132,8 +127,6 @@ local function storeStuff(nas, input, failures, failuresWasIncremented)
     end
 
     parallel.waitForAll(table.unpack(todo))
-
-    print("Nice")
 
     return failures, failuresWasIncremented
 end

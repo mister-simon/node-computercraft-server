@@ -62,15 +62,19 @@ function state:searchItems()
     self.searchedItems = arr.values(self.searchSection:searchItems(self.items))
 end
 
+function state:refreshSilently()
+    self:loadNas()
+    self:searchItems()
+    self.listSection.refreshing = false
+end
+
 function state:refresh()
     parallel.waitForAll(function()
-        self:loadNas()
-        self:searchItems()
+        self:refreshSilently()
     end, function()
         self.listSection:refresh()
     end)
 
-    self.listSection.refreshing = false
     return true
 end
 

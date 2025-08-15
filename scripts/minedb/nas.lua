@@ -119,8 +119,8 @@ function Nas:listOutput()
     return self:list({ [0] = self:getOutput() })
 end
 
-function Nas:iterateEmpty()
-    local empties = self:listEmpty()
+function Nas:iterateEmpty(inventories)
+    local empties = self:listEmpty(inventories)
 
     return gen.create(function(yield, exec)
         arr.each(empties, function(set)
@@ -131,8 +131,8 @@ function Nas:iterateEmpty()
     end)
 end
 
-function Nas:listEmpty()
-    local inventories = self:getStorage()
+function Nas:listEmpty(inventories)
+    inventories = inventories or self:getStorage()
 
     local todo = {}
     local empties = {}
@@ -153,6 +153,14 @@ function Nas:listEmpty()
     parallel.waitForAll(table.unpack(todo))
 
     return empties
+end
+
+function Nas:iterateEmptyInput()
+    return self:iterateEmpty({ [0] = self:getInput() })
+end
+
+function Nas:iterateEmptyOutput()
+    return self:iterateEmpty({ [0] = self:getOutput() })
 end
 
 return Nas

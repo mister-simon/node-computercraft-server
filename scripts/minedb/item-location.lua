@@ -7,6 +7,15 @@ local function itemLocation(inv, item, slot)
         return peripheral.getName(inv)
     end
 
+    local function pushTo(output, quantity, targetSlot)
+        return inv.pushItems(
+            peripheral.getName(output),
+            slot,
+            quantity,
+            targetSlot
+        )
+    end
+
     return {
         inv = inv,
         item = item,
@@ -23,6 +32,7 @@ local function itemLocation(inv, item, slot)
         getId = function()
             return getInvName() .. ":" .. slot
         end,
+        pushTo = pushTo
     }
 end
 

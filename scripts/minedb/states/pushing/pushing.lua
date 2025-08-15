@@ -3,6 +3,7 @@ local ensureWidth = require "cc.strings".ensure_width
 local arr = require("/scripts/api/arr")
 local number = require("/scripts/api/number")
 local Button = require("/scripts/api/button")
+local unstow = require("/scripts/minedb/states/pushing/unstow")
 
 -- Pushing
 -- -- Consume the internal queue until there is no space left to output into.
@@ -35,11 +36,11 @@ function state:init(states)
     local lw = math.floor((w / 3) * 2)
     local rw = w - lw
 
-    self.listSection = window.create(self.scene, 1, 1, lw, h - 1)
-    self.failedSection = window.create(self.scene, lw + 1, 1, rw, h - 1)
-    self.actionSection = window.create(self.scene, 1, h, w, 1)
+    self.leftSection = window.create(self.scene, 1, 2, lw, h - 2)
+    self.rightSection = window.create(self.scene, lw + 1, 2, rw, h - 2)
+    self.bottomSection = window.create(self.scene, 1, h, w, 1)
 
-    self.cancelBtn = Button.make("Cancel", 1, 1, colours.red, colours.white, self.actionSection)
+    self.cancelBtn = Button.make("Cancel", 1, 1, colours.red, colours.white, self.bottomSection)
 
     return self
 end
@@ -71,22 +72,33 @@ function state:queue(item)
     end
 end
 
+function state:filterEmpties()
+    for name, job in pairs(self._queue) do
+        if job.quantity == 0 then
+            self._queue[name] = nil
+        end
+    end
+end
+
 function state:getQueue()
     return self._queue
 end
 
+function state:getSortedQueue()
+    local queue = arr.values(self:getQueue())
+
+    table.sort(queue, function(a, b)
+        return a.collection.displayName() < b.collection.displayName()
+    end)
+
+    return queue
+end
+
 function state:list()
-    toWindow(self.listSection)(function()
+    toWindow(self.rightSection)(function()
         local lw, lh = term.getSize()
 
-        -- term.clear()
-        -- term.setCursorPos(1, 1)
-
-        local items = arr.values(self:getQueue())
-
-        table.sort(items, function(a, b)
-            return a.collection.displayName() < b.collection.displayName()
-        end)
+        local items = self:getSortedQueue()
 
         for i = 1, lh do
             local itemIndex = i
@@ -117,22 +129,20 @@ end
 
 function state:run()
     self.scene.setVisible(true)
-    toWindow(self.scene)(function()
-        term.clear()
-
-        self.listSection.setBackgroundColour(colours.green)
-        self.listSection.clear()
-
-        self.failedSection.setBackgroundColour(colours.blue)
-        self.failedSection.clear()
-
-        self.actionSection.setBackgroundColour(colours.orange)
-        self.actionSection.clear()
-    end)
 
     self:list()
 
-    sleep(3)
+    toWindow(self.leftSection)(function()
+        term.clear()
+        term.setCursorPos(1, 1)
+
+        unstow(self.nas, self:getSortedQueue())
+        self:filterEmpties()
+
+        print("--- That'll do... ---")
+        print("RELOADIN...")
+        self.states.normal:refreshSilently()
+    end)
 
     return self.states.normal
 end

@@ -32,6 +32,26 @@ local function itemCollection()
         return _maxCount
     end
 
+    local function pushTo(out, quantity)
+        repeat
+            local failed = false
+            arr.each(_locations, function(location)
+                if quantity == 0 or failed then
+                    return
+                end
+
+                local moved = location.pushTo(out, quantity)
+                quantity = quantity - moved
+
+                if moved == 0 then
+                    failed = true
+                end
+            end)
+        until quantity == 0 or failed
+
+        return quantity
+    end
+
     local exports = {
         name = name,
         displayName = displayName,
@@ -59,7 +79,8 @@ local function itemCollection()
                 displayName(detail.displayName)
                 maxCount(detail.maxCount)
             end
-        end
+        end,
+        pushTo = pushTo
     }
 
     exports.compress = function()

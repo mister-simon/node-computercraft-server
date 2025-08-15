@@ -35,13 +35,7 @@ function section.new(parentState, scene)
 end
 
 function section:getQueue()
-    local items = arr.values(self.parentState.states.pushing:getQueue())
-
-    table.sort(items, function(a, b)
-        return a.collection.displayName() < b.collection.displayName()
-    end)
-
-    return items
+    return self.parentState.states.pushing:getSortedQueue()
 end
 
 function section:update()

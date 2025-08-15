@@ -2,6 +2,7 @@ local pp = require("cc.pretty").pretty_print
 
 local arr = require("/scripts/api/arr")
 local startup = require("/scripts/minedb/states/startup/startup")
+local test = require("/scripts/minedb/states/test")
 local normal = require("/scripts/minedb/states/normal/normal")
 local pulling = require("/scripts/minedb/states/pulling/pulling")
 local pushing = require("/scripts/minedb/states/pushing/pushing")
@@ -13,12 +14,15 @@ local function main()
     local nas, windows = startup(compWindow)
 
     local states = {
+        test = test.new(nas, windows),
         normal = normal.new(nas, windows),
         pulling = pulling.new(nas, windows),
         pushing = pushing.new(nas, windows),
     }
 
     parallel.waitForAll(function()
+        states.test:init(states)
+    end, function()
         states.normal:init(states)
     end, function()
         states.pulling:init(states)
@@ -33,7 +37,8 @@ local function main()
     end)
 
     -- Run those states
-    local state = states.normal
+    local state = states.test
+
     repeat
         state = state:run()
     until not state
