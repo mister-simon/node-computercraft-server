@@ -96,8 +96,8 @@ end
 
 function state:list()
     toWindow(self.rightSection)(function()
+        term.clear()
         local lw, lh = term.getSize()
-
         local items = self:getSortedQueue()
 
         for i = 1, lh do
