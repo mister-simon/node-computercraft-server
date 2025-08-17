@@ -39,7 +39,7 @@ function section:readInput()
     local choices = arr.map(
         self.parentState.items,
         function(collection)
-            return collection.name():match(":(.*)")
+            return collection:name():match(":(.*)")
         end
     )
 
@@ -100,7 +100,7 @@ function section:searchItems(items)
     end
 
     return arr.filter(items, function(collection)
-        return collection.name():find(search) ~= nil
+        return collection:name():find(search) ~= nil
     end)
 end
 

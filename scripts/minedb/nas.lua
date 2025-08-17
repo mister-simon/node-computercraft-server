@@ -1,7 +1,7 @@
 -- local pp = require "cc.pretty".pretty_print
 local arr = require("/scripts/api/arr")
 local gen = require("/scripts/api/generator")
-local itemCollection = require("/scripts/minedb/item-collection")
+local ItemCollection = require("/scripts/minedb/item-collection")
 
 --- @class Nas
 local Nas = {}
@@ -98,10 +98,10 @@ function Nas:list(inventories)
         table.insert(todo, function()
             arr.each(inv.list(), function(item, slot)
                 if not items[item.name] then
-                    items[item.name] = itemCollection()
+                    items[item.name] = ItemCollection.new()
                 end
 
-                items[item.name].addItem(inv, item, slot)
+                items[item.name]:addItem(inv, item, slot)
             end)
         end)
     end

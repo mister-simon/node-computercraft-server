@@ -51,7 +51,7 @@ end
 
 function state:queue(item)
     local collection = item.collection
-    local name = collection.name()
+    local name = collection:name()
 
     if not self._queue[name] then
         self._queue[name] = {
@@ -64,7 +64,7 @@ function state:queue(item)
 
     self._queue[name].quantity = math.min(
         math.max(0, current + item.quantity),
-        collection.getCount()
+        collection:getCount()
     )
 
     if self._queue[name].quantity == 0 then
@@ -88,7 +88,7 @@ function state:getSortedQueue()
     local queue = arr.values(self:getQueue())
 
     table.sort(queue, function(a, b)
-        return a.collection.displayName() < b.collection.displayName()
+        return a.collection:displayName() < b.collection:displayName()
     end)
 
     return queue
@@ -119,7 +119,7 @@ function state:list()
                 term.setTextColour(colours.white)
 
                 write(ensureWidth(number.toShortString(job.quantity), 4))
-                write(ensureWidth(" " .. job.collection.displayName(), lw - 4))
+                write(ensureWidth(" " .. job.collection:displayName(), lw - 4))
             end
 
             term.setBackgroundColour(colours.black)

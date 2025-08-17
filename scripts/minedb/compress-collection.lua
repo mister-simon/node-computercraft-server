@@ -1,9 +1,9 @@
 local function compressCollection(collection)
-    local locations = collection.getLocations()
-    local max = collection.maxCount()
+    local locations = collection:locations()
+    local max = collection:maxCount()
 
     local function move(current, target, amount)
-        if current.getId() == target.getId() then
+        if current:getId() == target:getId() then
             return 0
         end
 
@@ -20,7 +20,7 @@ local function compressCollection(collection)
     end
 
     local function compressLocation(location, index, max)
-        local count = location.getCount()
+        local count = location:getCount()
 
         if not count or count == max then
             return

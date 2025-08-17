@@ -3,7 +3,7 @@ local arr = require("/scripts/api/arr")
 -- Get empty storage slots
 local function pushToCollection(input, slot, toMove, max, collection)
     arr.each(
-        collection.getLocations(),
+        collection:locations(),
         function(location)
             if toMove == 0 then
                 return
@@ -14,7 +14,7 @@ local function pushToCollection(input, slot, toMove, max, collection)
             end
 
             local moved = input.pushItems(
-                location.getInvName(),
+                location:getInvName(),
                 slot,
                 toMove,
                 location.slot
@@ -53,8 +53,8 @@ local function compressInput(nas)
         term.clearLine()
         local x, y = term.getCursorPos()
         term.setCursorPos(1, y)
-        write(collection.displayName())
-        collection.compress()
+        write(collection:displayName())
+        collection:compress()
     end)
 
     term.clearLine()
@@ -72,8 +72,8 @@ local function compressStorage(nas)
         term.clearLine()
         local x, y = term.getCursorPos()
         term.setCursorPos(1, y)
-        write(collection.displayName())
-        collection.compress()
+        write(collection:displayName())
+        collection:compress()
     end)
 
     print()

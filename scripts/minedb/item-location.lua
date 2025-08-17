@@ -1,39 +1,44 @@
-local function itemLocation(inv, item, slot)
-    local function getDetail()
-        return inv.getItemDetail(slot)
-    end
+--- @class ItemLocation
+local ItemLocation = {}
+ItemLocation.__index = ItemLocation
 
-    local function getInvName()
-        return peripheral.getName(inv)
-    end
-
-    local function pushTo(output, quantity, targetSlot)
-        return inv.pushItems(
-            peripheral.getName(output),
-            slot,
-            quantity,
-            targetSlot
-        )
-    end
-
-    return {
+function ItemLocation.new(inv, item, slot)
+    local instance = {
         inv = inv,
         item = item,
         slot = slot,
-        getDetail = getDetail,
-        getInvName = getInvName,
-        getCount = function()
-            local detail = getDetail()
-            if not detail then
-                return nil
-            end
-            return detail.count
-        end,
-        getId = function()
-            return getInvName() .. ":" .. slot
-        end,
-        pushTo = pushTo
     }
+
+    return setmetatable(instance, ItemLocation)
 end
 
-return itemLocation
+function ItemLocation:getDetail()
+    return self.inv.getItemDetail(self.slot)
+end
+
+function ItemLocation:getInvName()
+    return peripheral.getName(self.inv)
+end
+
+function ItemLocation:pushTo(output, quantity, targetSlot)
+    return self.inv.pushItems(
+        peripheral.getName(output),
+        self.slot,
+        quantity,
+        targetSlot
+    )
+end
+
+function ItemLocation:getCount()
+    local detail = self:getDetail()
+    if not detail then
+        return nil
+    end
+    return detail.count
+end
+
+function ItemLocation:getId()
+    return self:getInvName() .. ":" .. self.slot
+end
+
+return ItemLocation

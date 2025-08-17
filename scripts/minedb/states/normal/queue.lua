@@ -67,7 +67,7 @@ function section:update()
                 term.setTextColour(colours.white)
 
                 write(ensureWidth(number.toShortString(job.quantity), 4))
-                write(ensureWidth(" " .. job.collection.displayName(), lw - 4))
+                write(ensureWidth(" " .. job.collection:displayName(), lw - 4))
             end
 
             term.setBackgroundColour(colours.black)

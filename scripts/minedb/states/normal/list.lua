@@ -72,8 +72,8 @@ function section:update()
                 end
 
                 term.setTextColour(colours.white)
-                write(ensureWidth(number.toShortString(collection.getCount()), 4))
-                write(ensureWidth(" " .. collection.displayName(), detailW - 4))
+                write(ensureWidth(number.toShortString(collection:getCount()), 4))
+                write(ensureWidth(" " .. collection:displayName(), detailW - 4))
 
                 if withButtons or false then
                     local minus = Button.make("-", indexW + detailW, i)
@@ -143,11 +143,11 @@ end
 
 function section:getQueueQuantity(quantity, collection)
     if self.queueAll then
-        return quantity * collection.getCount()
+        return quantity * collection:getCount()
     end
 
     if self.queueStack then
-        return quantity * collection.maxCount()
+        return quantity * collection:maxCount()
     end
 
     return quantity

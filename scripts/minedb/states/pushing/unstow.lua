@@ -8,8 +8,8 @@ local function unstow(nas, queue)
         local collection = job.collection
         local quantity = job.quantity
 
-        print(collection.displayName(), quantity)
-        local remaining = collection.pushTo(output, quantity)
+        print(collection:displayName(), quantity)
+        local remaining = collection:pushTo(output, quantity)
         print("Moved " .. (job.quantity - remaining))
         job.quantity = remaining
     end)

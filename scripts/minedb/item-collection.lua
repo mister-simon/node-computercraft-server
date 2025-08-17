@@ -1,93 +1,82 @@
 local arr = require("/scripts/api/arr")
-local itemLocation = require("/scripts/minedb/item-location")
+local ItemLocation = require("/scripts/minedb/item-location")
 local compressCollection = require("/scripts/minedb/compress-collection")
 
 -- Represents a single item type across a NAS
 -- An item type is stored on the NAS in many locations
 -- Each item location contains an inventory peripheral, item data, and slot number
-local function itemCollection()
-    local _locations = {}
-    local _name
-    local _displayName
-    local _maxCount
 
-    local function name(newName)
-        if newName then
-            _name = newName
-        end
-        return _name
-    end
+--- @class ItemCollection
+local ItemCollection = {}
+ItemCollection.__index = ItemCollection
 
-    local function displayName(newDisplayName)
-        if newDisplayName then
-            _displayName = newDisplayName
-        end
-        return _displayName
-    end
-
-    local function maxCount(newMaxCount)
-        if newMaxCount then
-            _maxCount = newMaxCount
-        end
-        return _maxCount
-    end
-
-    local function pushTo(out, quantity)
-        repeat
-            local failed = false
-            arr.each(_locations, function(location)
-                if quantity == 0 or failed then
-                    return
-                end
-
-                local moved = location.pushTo(out, quantity)
-                quantity = quantity - moved
-
-                if moved == 0 then
-                    failed = true
-                end
-            end)
-        until quantity == 0 or failed
-
-        return quantity
-    end
-
-    local exports = {
-        name = name,
-        displayName = displayName,
-        maxCount = maxCount,
-        getLocations = function()
-            return _locations
-        end,
-        getCount = function()
-            local count = 0
-            arr.each(_locations, function(location)
-                count = count + location.item.count
-            end)
-            return count
-        end,
-        addItem = function(inv, item, slot)
-            local location = itemLocation(inv, item, slot)
-            local detail = location.getDetail()
-
-            if detail then
-                -- Add the item
-                table.insert(_locations, location)
-
-                -- Update collection properties
-                name(detail.name)
-                displayName(detail.displayName)
-                maxCount(detail.maxCount)
-            end
-        end,
-        pushTo = pushTo
+function ItemCollection.new()
+    local instance = {
+        _locations = {},
+        _details = false
     }
 
-    exports.compress = function()
-        return compressCollection(exports)
-    end
-
-    return exports
+    return setmetatable(instance, ItemCollection)
 end
 
-return itemCollection
+function ItemCollection:locations()
+    return self._locations
+end
+
+function ItemCollection:name()
+    return self._details.name
+end
+
+function ItemCollection:displayName()
+    return self._details.displayName
+end
+
+function ItemCollection:maxCount()
+    return self._details.maxCount
+end
+
+function ItemCollection:pushTo(out, quantity)
+    repeat
+        local failed = false
+
+        arr.each(self._locations, function(location)
+            if quantity == 0 or failed then
+                return
+            end
+
+            local moved = location:pushTo(out, quantity)
+            quantity = quantity - moved
+
+            if moved == 0 then
+                failed = true
+            end
+        end)
+    until quantity == 0 or failed
+
+    return quantity
+end
+
+function ItemCollection:getCount()
+    local count = 0
+    arr.each(self._locations, function(location)
+        count = count + location.item.count
+    end)
+    return count
+end
+
+function ItemCollection:addItem(inv, item, slot)
+    local location = ItemLocation.new(inv, item, slot)
+
+    if not self._details then
+        self._details = location:getDetail()
+    end
+
+    -- Add the item
+    table.insert(self._locations, location)
+end
+
+function ItemCollection:compress()
+    return compressCollection(self)
+end
+
+return ItemCollection

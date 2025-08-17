@@ -48,11 +48,11 @@ function state:loadNas()
     local items = arr.values(self.nas:list())
 
     table.sort(items, function(a, b)
-        if a.getCount() == b.getCount() then
-            return a.displayName() < b.displayName()
+        if a:getCount() == b:getCount() then
+            return a:displayName() < b:displayName()
         end
 
-        return a.getCount() >= b.getCount()
+        return a:getCount() >= b:getCount()
     end)
 
     self.items = items
