@@ -1,12 +1,25 @@
 local pp           = require("cc.pretty").pretty_print
 local arr          = require("/scripts/api/arr")
 
+-- Manage args
 local pathArg      = ({ ... })[1] or "/animation/"
 local framerateArg = ({ ... })[2] or 8
 local loopArg      = ({ ... })[3] or true
 
-assert(pathArg:match("^\/.+\/$"), "Path must start and end with / - i.e. /animation/")
+if type(loopArg) == "string" then
+    if (loopArg == "false" or loopArg == "0") then
+        loopArg = false
+    elseif (loopArg == "true" or loopArg == "1") then
+        loopArg = true
+    else
+        error("Loop arg (3) must be either (true/false) or (0/1)")
+    end
+end
 
+assert(pathArg:match("^\/.+\/$"), "Path arg (1) must start and end with / - i.e. /animation/")
+assert(tonumber(framerateArg) ~= nil, "Framerate arg (2) must be numeric")
+
+-- Main stuff begins
 local function allMonitors(fn)
     local cur = term.current()
     fn()
@@ -50,16 +63,14 @@ end
 local function main()
     local frames = listFrames(pathArg)
 
-    -- pp(frames)
-
     for i, frame in ipairs(frames) do
-        allMonitors(function()
-            renderFrame(frame)
-        end)
+        allMonitors(function() renderFrame(frame) end)
         sleep(1 / tonumber(framerateArg))
     end
 end
 
-while loopArg do
+repeat
     main()
-end
+until not loopArg
+
+term.clear()
