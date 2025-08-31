@@ -11,8 +11,9 @@ local function compressCollection(collection)
             return 0
         end
 
-        return current:pushTo(
-            target,
+        return current.inv.pushItems(
+            target.getInvName(),
+            current.slot,
             amount,
             target.slot
         )
