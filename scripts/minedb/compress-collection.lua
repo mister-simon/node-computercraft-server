@@ -12,7 +12,7 @@ local function compressCollection(collection)
         end
 
         return current.inv.pushItems(
-            target.getInvName(),
+            target:getInvName(),
             current.slot,
             amount,
             target.slot
