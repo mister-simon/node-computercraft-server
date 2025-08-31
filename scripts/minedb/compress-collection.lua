@@ -7,13 +7,12 @@ local function compressCollection(collection)
             return 0
         end
 
-        if target.getCount() == max then
+        if target:getCount() == max then
             return 0
         end
 
-        return current.inv.pushItems(
-            target.getInvName(),
-            current.slot,
+        return current:pushTo(
+            target:getInvName(),
             amount,
             target.slot
         )
